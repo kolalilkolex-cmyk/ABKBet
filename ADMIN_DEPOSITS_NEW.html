@@ -1,0 +1,442 @@
+<!-- ADMIN DEPOSIT APPROVAL SECTION -->
+<!-- Add this section to admin2.html in the appropriate place (around line 733) -->
+<!-- Replace the existing "Pending Deposits" placeholder section with this: -->
+
+<div class="dashboard-section">
+    <h3><i class="fas fa-money-check-alt"></i> Deposit Management</h3>
+    
+    <!-- Filter Tabs -->
+    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+        <button onclick="filterDeposits('pending')" id="filterPending" class="filter-btn active-filter">
+            <i class="fas fa-clock"></i> Pending (<span id="pendingCount">0</span>)
+        </button>
+        <button onclick="filterDeposits('approved')" id="filterApproved" class="filter-btn">
+            <i class="fas fa-check-circle"></i> Approved (<span id="approvedCount">0</span>)
+        </button>
+        <button onclick="filterDeposits('rejected')" id="filterRejected" class="filter-btn">
+            <i class="fas fa-times-circle"></i> Rejected (<span id="rejectedCount">0</span>)
+        </button>
+        <button onclick="filterDeposits('all')" id="filterAll" class="filter-btn">
+            <i class="fas fa-list"></i> All (<span id="allCount">0</span>)
+        </button>
+        <button onclick="refreshDeposits()" class="filter-btn" style="margin-left: auto;">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
+
+    <!-- Deposits List -->
+    <div id="depositsContainer" style="max-height: 600px; overflow-y: auto;">
+        <div id="depositsList">
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 12px;"></i>
+                <div>Loading deposits...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.filter-btn {
+    padding: 8px 16px;
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+.active-filter {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.deposit-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.deposit-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.deposit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.deposit-user {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e2e8f0;
+}
+
+.deposit-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #10b981;
+}
+
+.deposit-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.info-item {
+    font-size: 13px;
+}
+
+.info-label {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #e2e8f0;
+    margin-top: 2px;
+}
+
+.deposit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-approve {
+    padding: 8px 16px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-approve:hover {
+    background: #059669;
+}
+
+.btn-reject {
+    padding: 8px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover {
+    background: #dc2626;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #f59e0b;
+    color: white;
+}
+
+.status-approved {
+    background: #10b981;
+    color: white;
+}
+
+.status-rejected {
+    background: #ef4444;
+    color: white;
+}
+</style>
+
+<script>
+// Global variables
+let allDeposits = [];
+let currentFilter = 'pending';
+
+// Load deposits on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadDeposits();
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        if (document.getElementById('depositsList')) {
+            loadDeposits(true); // Silent refresh
+        }
+    }, 30000);
+});
+
+// Load all deposits
+async function loadDeposits(silent = false) {
+    try {
+        if (!silent) {
+            document.getElementById('depositsList').innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 12px;"></i>
+                    <div>Loading deposits...</div>
+                </div>
+            `;
+        }
+        
+        const response = await client.request('/deposit/all');
+        allDeposits = response.deposits;
+        
+        // Update counts
+        const pending = allDeposits.filter(d => d.status === 'pending').length;
+        const approved = allDeposits.filter(d => d.status === 'approved').length;
+        const rejected = allDeposits.filter(d => d.status === 'rejected').length;
+        
+        document.getElementById('pendingCount').textContent = pending;
+        document.getElementById('approvedCount').textContent = approved;
+        document.getElementById('rejectedCount').textContent = rejected;
+        document.getElementById('allCount').textContent = allDeposits.length;
+        
+        // Update main pending counter (if exists in dashboard)
+        const pendingEl = document.getElementById('pendingDeposits');
+        if (pendingEl) {
+            pendingEl.textContent = pending;
+        }
+        
+        // Render deposits based on current filter
+        filterDeposits(currentFilter);
+        
+    } catch (error) {
+        console.error('Error loading deposits:', error);
+        document.getElementById('depositsList').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #ef4444;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 12px;"></i>
+                <div>Error loading deposits: ${error.message}</div>
+                <button onclick="loadDeposits()" style="margin-top: 12px; padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    Try Again
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Filter deposits by status
+function filterDeposits(status) {
+    currentFilter = status;
+    
+    // Update active filter button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active-filter');
+    });
+    document.getElementById(`filter${status.charAt(0).toUpperCase() + status.slice(1)}`).classList.add('active-filter');
+    
+    // Filter deposits
+    let filtered = allDeposits;
+    if (status !== 'all') {
+        filtered = allDeposits.filter(d => d.status === status);
+    }
+    
+    // Sort by created_at descending (newest first)
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    // Render deposits
+    renderDeposits(filtered);
+}
+
+// Render deposits list
+function renderDeposits(deposits) {
+    const container = document.getElementById('depositsList');
+    
+    if (deposits.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 12px;"></i>
+                <div>No ${currentFilter === 'all' ? '' : currentFilter} deposits found</div>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    deposits.forEach(deposit => {
+        const statusClass = `status-${deposit.status}`;
+        const statusIcon = deposit.status === 'approved' ? 'check-circle' :
+                          deposit.status === 'rejected' ? 'times-circle' : 'clock';
+        
+        const createdDate = new Date(deposit.created_at).toLocaleString();
+        const processedDate = deposit.processed_at ? new Date(deposit.processed_at).toLocaleString() : null;
+        
+        html += `
+            <div class="deposit-card" id="deposit-${deposit.id}">
+                <div class="deposit-header">
+                    <div>
+                        <div class="deposit-user">
+                            <i class="fas fa-user"></i> ${deposit.username}
+                        </div>
+                        <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                            ID: #${deposit.id} • ${createdDate}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="deposit-amount">$${deposit.amount.toFixed(2)}</div>
+                        <span class="status-badge ${statusClass}">
+                            <i class="fas fa-${statusIcon}"></i> ${deposit.status}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="deposit-info">
+                    <div class="info-item">
+                        <div class="info-label">Payment Method</div>
+                        <div class="info-value">
+                            <i class="fas fa-${getMethodIcon(deposit.payment_method)}"></i> 
+                            ${deposit.payment_method.replace('_', ' ').toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Transaction Reference</div>
+                        <div class="info-value" style="word-break: break-all;">${deposit.transaction_reference}</div>
+                    </div>
+                    ${deposit.payment_proof ? `
+                        <div class="info-item">
+                            <div class="info-label">Payment Proof</div>
+                            <div class="info-value" style="word-break: break-all;">${deposit.payment_proof}</div>
+                        </div>
+                    ` : ''}
+                    ${processedDate ? `
+                        <div class="info-item">
+                            <div class="info-label">Processed At</div>
+                            <div class="info-value">${processedDate}</div>
+                        </div>
+                    ` : ''}
+                    ${deposit.approved_by_username ? `
+                        <div class="info-item">
+                            <div class="info-label">Processed By</div>
+                            <div class="info-value">${deposit.approved_by_username}</div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${deposit.admin_notes ? `
+                    <div style="background: #0f172a; border-left: 3px solid #f59e0b; padding: 12px; border-radius: 4px; margin-top: 12px;">
+                        <div style="font-size: 12px; color: #f59e0b; font-weight: bold; margin-bottom: 4px;">
+                            <i class="fas fa-sticky-note"></i> Admin Notes
+                        </div>
+                        <div style="font-size: 13px; color: #94a3b8;">${deposit.admin_notes}</div>
+                    </div>
+                ` : ''}
+                
+                ${deposit.status === 'pending' ? `
+                    <div class="deposit-actions">
+                        <button onclick="approveDeposit(${deposit.id})" class="btn-approve">
+                            <i class="fas fa-check"></i> Approve & Credit $${deposit.amount.toFixed(2)}
+                        </button>
+                        <button onclick="showRejectDialog(${deposit.id})" class="btn-reject">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// Get icon for payment method
+function getMethodIcon(method) {
+    const icons = {
+        'bitcoin': 'bitcoin',
+        'usdt': 'coins',
+        'bank_transfer': 'university',
+        'paypal': 'paypal',
+        'skrill': 'money-check'
+    };
+    return icons[method] || 'credit-card';
+}
+
+// Approve deposit
+async function approveDeposit(depositId) {
+    if (!confirm('Are you sure you want to approve this deposit? The user\'s balance will be credited immediately.')) {
+        return;
+    }
+    
+    try {
+        const response = await client.request(`/deposit/approve/${depositId}`, {
+            method: 'POST'
+        });
+        
+        showAdminMessage(`✅ Deposit #${depositId} approved! User balance credited.`, false);
+        
+        // Reload deposits
+        await loadDeposits();
+        
+    } catch (error) {
+        showAdminMessage(`❌ Error approving deposit: ${error.message}`, true);
+    }
+}
+
+// Show reject dialog
+function showRejectDialog(depositId) {
+    const reason = prompt('Enter rejection reason:');
+    if (reason) {
+        rejectDeposit(depositId, reason);
+    }
+}
+
+// Reject deposit
+async function rejectDeposit(depositId, reason) {
+    try {
+        const response = await client.request(`/deposit/reject/${depositId}`, {
+            method: 'POST',
+            body: JSON.stringify({ reason })
+        });
+        
+        showAdminMessage(`✅ Deposit #${depositId} rejected.`, false);
+        
+        // Reload deposits
+        await loadDeposits();
+        
+    } catch (error) {
+        showAdminMessage(`❌ Error rejecting deposit: ${error.message}`, true);
+    }
+}
+
+// Refresh deposits
+function refreshDeposits() {
+    loadDeposits();
+}
+
+// Show admin message (use existing notification system or create simple one)
+function showAdminMessage(message, isError) {
+    // Try to use existing showMessage function if available
+    if (typeof showMessage === 'function') {
+        showMessage(message, isError);
+        return;
+    }
+    
+    // Fallback: Simple alert
+    alert(message);
+}
+</script>

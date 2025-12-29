@@ -1,0 +1,17 @@
+List of files to include in your update zip:
+
+1. templates/index.html
+2. templates/admin.html
+3. static/abkbet-client.js
+4. app/routes/admin_routes.py
+5. app/routes/bet_routes.py (if changed)
+6. app/models/__init__.py (if changed)
+7. app/routes/auth_routes.py (if changed)
+
+To zip these files:
+- Select them in your file explorer
+- Right-click and choose "Send to > Compressed (zipped) folder"
+- Name the zip file (e.g., abkbet_update.zip)
+- Upload the zip to PythonAnywhere and extract
+
+If you want an automated script to zip these files, let me know your OS and I can provide the exact command.

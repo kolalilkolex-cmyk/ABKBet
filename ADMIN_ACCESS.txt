@@ -1,0 +1,126 @@
+================================================================================
+                    ADMIN ACCESS CREDENTIALS - CONFIDENTIAL
+================================================================================
+
+⚠️  KEEP THIS FILE SECURE - DO NOT SHARE PUBLICLY  ⚠️
+
+================================================================================
+ADMIN LOGIN URL (Secret - Not linked on public site)
+================================================================================
+
+Custom Domain:    https://yourdomain.com/secure-admin-access-2024
+                  (Replace 'yourdomain.com' with your actual domain)
+
+PythonAnywhere:   https://lilkolex.pythonanywhere.com/secure-admin-access-2024
+
+Local Dev:        http://127.0.0.1:5000/secure-admin-access-2024
+
+IMPORTANT: 
+- This URL is NOT linked anywhere on the public website
+- Only admins should know this URL
+- Bookmark it privately in your browser
+- Do not share in public channels
+- The path /secure-admin-access-2024 works on ANY domain you deploy to
+
+================================================================================
+DEFAULT ADMIN CREDENTIALS
+================================================================================
+
+Username: admin
+Password: admin123
+
+⚠️  CHANGE THESE IMMEDIATELY AFTER FIRST LOGIN!
+
+================================================================================
+ADMIN DASHBOARD URL (After Login)
+================================================================================
+
+Custom Domain:    https://yourdomain.com/admin
+PythonAnywhere:   https://lilkolex.pythonanywhere.com/admin
+Local Dev:        http://127.0.0.1:5000/admin
+
+Note: You will be automatically redirected to login if not authenticated
+
+================================================================================
+DEPLOYING TO YOUR CUSTOM DOMAIN
+================================================================================
+
+When you get your own domain (e.g., abkbet.com, mybettingsite.com):
+
+1. The admin URL automatically becomes:
+   https://yourdomain.com/secure-admin-access-2024
+
+2. NO code changes needed - the path stays the same
+
+3. Update your bookmarks with the new domain URL
+
+4. The public site will be at: https://yourdomain.com/
+
+5. Keep the admin URL secret - only share with trusted team members
+
+================================================================================
+SECURITY FEATURES
+================================================================================
+
+✓ Admin login URL is obscured (not /admin/login)
+✓ No public links to admin login page
+✓ Admin dashboard requires authentication
+✓ Non-admin users are blocked even if they know the URL
+✓ Session tokens stored securely in browser localStorage
+
+================================================================================
+HOW TO ACCESS ADMIN PANEL
+================================================================================
+
+1. Open browser and go to: /secure-admin-access-2024
+2. Enter admin username and password
+3. System verifies you have admin privileges
+4. Automatically redirects to admin dashboard
+
+If you try to access /admin directly without logging in, you'll be 
+redirected to the secure login page automatically.
+
+================================================================================
+RECOMMENDED SECURITY PRACTICES
+================================================================================
+
+1. Change default admin password immediately
+2. Use strong passwords (12+ characters, mixed case, numbers, symbols)
+3. Do not save password in browser if using shared computer
+4. Always logout when done (click Logout button in admin panel)
+5. Clear browser data if using public/shared computer
+6. Access admin panel only from secure networks
+7. Consider changing the URL path periodically for extra security
+   (update in run.py: @flask_app.route('/your-new-secret-url'))
+
+================================================================================
+CHANGING THE ADMIN URL (For Extra Security)
+================================================================================
+
+To change the admin login URL to something even more obscure:
+
+1. Open: run.py
+2. Find: @flask_app.route('/secure-admin-access-2024')
+3. Change to: @flask_app.route('/your-custom-secret-path')
+4. Save and restart server
+5. Update this file with new URL
+6. Update templates/admin.html (3 places where URL is referenced)
+
+Example secure URLs:
+- /portal-2024-xyz-789
+- /backdoor-management-system
+- /internal-operations-panel
+- /hidden-dashboard-access
+
+================================================================================
+SUPPORT
+================================================================================
+
+If locked out or need assistance:
+- Email: support@abkbet.com
+- Check logs in: logs/ folder
+- Database location: instance/betting.db
+
+================================================================================
+LAST UPDATED: December 6, 2025
+================================================================================

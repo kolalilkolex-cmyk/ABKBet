@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Test - ABKBet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 2px solid #444;
+        }
+        .success { background: #1a4d1a; border-color: #2d8c2d; }
+        .error { background: #4d1a1a; border-color: #8c2d2d; }
+        .info { background: #1a3a4d; border-color: #2d5c8c; }
+        h1 { color: #4CAF50; }
+        h2 { color: #2196F3; margin-top: 30px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #2a2a2a;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #444;
+        }
+        th {
+            background: #333;
+            color: #4CAF50;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-primary { background: #2196F3; color: white; }
+        .btn-success { background: #4CAF50; color: white; }
+        .btn:hover { opacity: 0.8; }
+        pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 ABKBet Match Debugging Tool</h1>
+    
+    <div class="status info">
+        <strong>Instructions:</strong> Click the buttons below to test the match endpoints
+    </div>
+
+    <button class="btn btn-primary" onclick="testAdminMatches()">Test Admin Matches API</button>
+    <button class="btn btn-success" onclick="testPublicMatches()">Test Public Matches API</button>
+    <button class="btn btn-primary" onclick="checkDatabase()">Check Database Directly</button>
+
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        async function testAdminMatches() {
+            resultsDiv.innerHTML = '<div class="status info">Testing admin endpoint...</div>';
+            
+            try {
+                // Login first
+                const loginResp = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'alice', password: 'alice123' })
+                });
+                
+                if (!loginResp.ok) {
+                    throw new Error('Login failed');
+                }
+                
+                const loginData = await loginResp.json();
+                const token = loginData.access_token;
+                
+                // Get matches
+                const matchResp = await fetch('/api/admin/matches?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const data = await matchResp.json();
+                
+                let html = '<h2>✅ Admin Matches Endpoint</h2>';
+                html += `<div class="status success"><strong>Total Matches:</strong> ${data.matches ? data.matches.length : 0}</div>`;
+                
+                if (data.matches && data.matches.length > 0) {
+                    html += '<table><tr><th>ID</th><th>Match</th><th>League</th><th>Date</th><th>Odds</th><th>Status</th></tr>';
+                    data.matches.forEach(m => {
+                        html += `<tr>
+                            <td>${m.id}</td>
+                            <td>${m.home_team} vs ${m.away_team}</td>
+                            <td>${m.league || 'N/A'}</td>
+                            <td>${new Date(m.match_date).toLocaleString()}</td>
+                            <td>${m.home_odds} / ${m.draw_odds} / ${m.away_odds}</td>
+                            <td>${m.status}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                } else {
+                    html += '<div class="status error">❌ No matches returned</div>';
+                }
+                
+                html += '<h3>Raw Response:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                resultsDiv.innerHTML = html;
+                
+            } catch (err) {
+                resultsDiv.innerHTML = `<div class="status error"><strong>Error:</strong> ${err.message}</div>`;
+            }
+        }
+
+        async function testPublicMatches() {
+            resultsDiv.innerHTML = '<div class="status info">Testing public endpoint...</div>';
+            
+            try {
+                const resp = await fetch('/api/bets/matches/manual?_t=' + Date.now());
+                const data = await resp.json();
+                
+                let html = '<h2>✅ Public Matches Endpoint</h2>';
+                html += `<div class="status success"><strong>Total Matches:</strong> ${data.matches ? data.matches.length : 0}</div>`;
+                
+                if (data.matches && data.matches.length > 0) {
+                    html += '<table><tr><th>ID</th><th>Match</th><th>League</th><th>Date</th><th>Odds</th><th>Status</th></tr>';
+                    data.matches.forEach(m => {
+                        html += `<tr>
+                            <td>${m.id}</td>
+                            <td>${m.home_team} vs ${m.away_team}</td>
+                            <td>${m.league || 'N/A'}</td>
+                            <td>${new Date(m.match_date).toLocaleString()}</td>
+                            <td>${m.home_odds} / ${m.draw_odds} / ${m.away_odds}</td>
+                            <td>${m.status}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                } else {
+                    html += '<div class="status error">❌ No matches returned</div>';
+                }
+                
+                html += '<h3>Raw Response:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                resultsDiv.innerHTML = html;
+                
+            } catch (err) {
+                resultsDiv.innerHTML = `<div class="status error"><strong>Error:</strong> ${err.message}</div>`;
+            }
+        }
+
+        async function checkDatabase() {
+            resultsDiv.innerHTML = '<div class="status info">Checking database...</div>';
+            
+            try {
+                const resp = await fetch('/api/test/db-matches');
+                const data = await resp.json();
+                
+                let html = '<h2>✅ Database Check</h2>';
+                html += `<div class="status ${data.total > 0 ? 'success' : 'error'}"><strong>Total Matches in DB:</strong> ${data.total}</div>`;
+                html += '<h3>Response:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                resultsDiv.innerHTML = html;
+                
+            } catch (err) {
+                resultsDiv.innerHTML = `<div class="status error"><strong>Error:</strong> ${err.message}</div>`;
+            }
+        }
+
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            testPublicMatches();
+        });
+    </script>
+</body>
+</html>

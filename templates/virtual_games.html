@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Games - Bet Now</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1419;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .leagues-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .league-tab {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e2530 0%, #2a3140 100%);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border: 3px solid transparent;
+        }
+
+        .league-tab:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .league-tab.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .league-tab h3 {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .league-tab .game-count {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .section-header h2 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+
+        .live-indicator {
+            background: #ff4444;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #1e2530 0%, #2a3140 100%);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .game-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .game-card.live {
+            border-color: #ff4444;
+            box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3a4250;
+        }
+
+        .league-name {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .game-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .match-info {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .team {
+            flex: 1;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .team.home {
+            text-align: left;
+        }
+
+        .team.away {
+            text-align: right;
+        }
+
+        .vs {
+            margin: 0 15px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .score {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .minute {
+            background: #ff4444;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .odds-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .odd-button {
+            background: #2a3140;
+            border: 2px solid #3a4250;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .odd-button:hover {
+            background: #3a4250;
+            border-color: #667eea;
+        }
+
+        .odd-button.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .odd-button .odd-label {
+            font-size: 0.9em;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .odd-button .odd-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .bet-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .bet-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #3a4250;
+            background: #1e2530;
+            color: white;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .bet-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .bet-button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bet-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .bet-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .no-games {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .no-games i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .market-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .market-tab {
+            padding: 8px 15px;
+            background: #2a3140;
+            border: 2px solid #3a4250;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .market-tab:hover {
+            border-color: #667eea;
+        }
+
+        .market-tab.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-scheduled {
+            background: #2196f3;
+        }
+
+        .status-live {
+            background: #ff4444;
+            animation: pulse 2s infinite;
+        }
+
+        .status-finished {
+            background: #4caf50;
+        }
+
+        .betslip {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 350px;
+            background: linear-gradient(135deg, #1e2530 0%, #2a3140 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            max-height: 500px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .betslip.active {
+            display: block;
+        }
+
+        .betslip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3a4250;
+        }
+
+        .betslip-item {
+            background: #2a3140;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .betslip-total {
+            background: #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚽ Virtual Football Games</h1>
+        <p>Fast-paced virtual games every few minutes!</p>
+    </div>
+
+    <div class="container">
+        <!-- League Tabs -->
+        <div class="leagues-tabs" id="leagues-tabs">
+            <div class="loading">Loading leagues...</div>
+        </div>
+
+        <!-- Live Games Section -->
+        <div class="section" id="live-section">
+            <div class="section-header">
+                <h2>🔴 Live Now</h2>
+                <span class="live-indicator">LIVE</span>
+            </div>
+            <div class="games-grid" id="live-games">
+                <div class="loading">Loading live games...</div>
+            </div>
+        </div>
+
+        <!-- Upcoming Games Section -->
+        <div class="section" id="upcoming-section">
+            <div class="section-header">
+                <h2>📅 Upcoming Games</h2>
+            </div>
+            <div class="games-grid" id="upcoming-games">
+                <div class="loading">Loading upcoming games...</div>
+            </div>
+        </div>
+
+        <!-- Recent Results Section -->
+        <div class="section" id="results-section">
+            <div class="section-header">
+                <h2>✅ Recent Results</h2>
+            </div>
+            <div class="games-grid" id="finished-games">
+                <div class="loading">Loading results...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/virtual';
+        const token = localStorage.getItem('token');
+        let selectedLeague = null;
+        let selectedBets = {};
+
+        // Load Leagues
+        async function loadLeagues() {
+            try {
+                const response = await fetch(`${API_URL}/leagues`);
+                const data = await response.json();
+                
+                const container = document.getElementById('leagues-tabs');
+                
+                if (data.leagues.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">No leagues available</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.leagues.map(league => `
+                    <div class="league-tab ${!selectedLeague && league === data.leagues[0] ? 'active' : ''}" 
+                         onclick="selectLeague(${league.id})">
+                        <h3>${league.name}</h3>
+                        <p class="game-count">${league.team_count} teams</p>
+                    </div>
+                `).join('');
+                
+                // Auto-select first league
+                if (!selectedLeague && data.leagues.length > 0) {
+                    selectedLeague = data.leagues[0].id;
+                    loadGames();
+                }
+            } catch (error) {
+                console.error('Error loading leagues:', error);
+            }
+        }
+
+        // Select League
+        function selectLeague(leagueId) {
+            selectedLeague = leagueId;
+            
+            document.querySelectorAll('.league-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.league-tab').classList.add('active');
+            
+            loadGames();
+        }
+
+        // Load Games
+        async function loadGames() {
+            loadLiveGames();
+            loadUpcomingGames();
+            loadFinishedGames();
+        }
+
+        // Load Live Games
+        async function loadLiveGames() {
+            const container = document.getElementById('live-games');
+            
+            try {
+                const endpoint = selectedLeague 
+                    ? `${API_URL}/leagues/${selectedLeague}/games?status=live`
+                    : `${API_URL}/games/live`;
+                    
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                if (data.games.length === 0) {
+                    container.innerHTML = '<div class="no-games"><i>⚽</i><p>No live games at the moment</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.games.map(game => createGameCard(game, true)).join('');
+            } catch (error) {
+                container.innerHTML = '<p style="color: #f44336;">Error loading live games</p>';
+            }
+        }
+
+        // Load Upcoming Games
+        async function loadUpcomingGames() {
+            const container = document.getElementById('upcoming-games');
+            
+            try {
+                const endpoint = `${API_URL}/leagues/${selectedLeague}/games?status=scheduled`;
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                if (data.games.length === 0) {
+                    container.innerHTML = '<div class="no-games"><i>📅</i><p>No upcoming games</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.games.slice(0, 6).map(game => createGameCard(game, false)).join('');
+            } catch (error) {
+                container.innerHTML = '<p style="color: #f44336;">Error loading upcoming games</p>';
+            }
+        }
+
+        // Load Finished Games
+        async function loadFinishedGames() {
+            const container = document.getElementById('finished-games');
+            
+            try {
+                const endpoint = `${API_URL}/leagues/${selectedLeague}/games?status=finished`;
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                if (data.games.length === 0) {
+                    container.innerHTML = '<div class="no-games"><i>✅</i><p>No recent results</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.games.slice(0, 6).map(game => createGameCard(game, false, true)).join('');
+            } catch (error) {
+                container.innerHTML = '<p style="color: #f44336;">Error loading results</p>';
+            }
+        }
+
+        // Create Game Card
+        function createGameCard(game, isLive, isFinished = false) {
+            const startTime = new Date(game.scheduled_start);
+            const isScheduled = game.status === 'scheduled';
+            
+            return `
+                <div class="game-card ${isLive ? 'live' : ''}">
+                    <div class="game-header">
+                        <span class="league-name">${game.league_name}</span>
+                        <span class="status-badge status-${game.status}">${game.status.toUpperCase()}</span>
+                    </div>
+                    
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team home">${game.home_team.name}</div>
+                            <div class="vs">VS</div>
+                            <div class="team away">${game.away_team.name}</div>
+                        </div>
+                        
+                        ${isLive ? `
+                            <div class="score">${game.home_score} - ${game.away_score}</div>
+                            <div class="minute">${game.current_minute}'</div>
+                        ` : isFinished ? `
+                            <div class="score">${game.home_score} - ${game.away_score}</div>
+                            <div style="color: #4caf50; margin-top: 10px;">✅ Full Time</div>
+                        ` : `
+                            <div class="game-time">Starts: ${startTime.toLocaleString()}</div>
+                        `}
+                    </div>
+                    
+                    ${!isFinished && token ? `
+                        <div class="market-tabs">
+                            <div class="market-tab active" onclick="showMarket(${game.id}, '1x2')">1X2</div>
+                            <div class="market-tab" onclick="showMarket(${game.id}, 'ou')">Over/Under</div>
+                            <div class="market-tab" onclick="showMarket(${game.id}, 'gg')">GG/NG</div>
+                        </div>
+                        
+                        <div id="market-${game.id}" class="odds-grid">
+                            ${create1X2Odds(game)}
+                        </div>
+                        
+                        <div class="bet-controls">
+                            <input type="number" class="bet-input" id="amount-${game.id}" placeholder="Bet amount (USD)" min="1" step="0.1">
+                            <button class="bet-button" onclick="placeBet(${game.id})">Bet Now</button>
+                        </div>
+                    ` : !token ? '<p style="text-align:center; color:#999; margin-top:15px;">Login to bet</p>' : ''}
+                </div>
+            `;
+        }
+
+        // Create 1X2 Odds
+        function create1X2Odds(game) {
+            return `
+                <div class="odd-button" onclick="selectOdd(${game.id}, '1x2', 'home', ${game.home_odds})">
+                    <div class="odd-label">Home</div>
+                    <div class="odd-value">${game.home_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, '1x2', 'draw', ${game.draw_odds})">
+                    <div class="odd-label">Draw</div>
+                    <div class="odd-value">${game.draw_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, '1x2', 'away', ${game.away_odds})">
+                    <div class="odd-label">Away</div>
+                    <div class="odd-value">${game.away_odds}</div>
+                </div>
+            `;
+        }
+
+        // Create Over/Under Odds
+        function createOUOdds(game) {
+            return `
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'ou15', 'over', ${game.over15_odds})">
+                    <div class="odd-label">Over 1.5</div>
+                    <div class="odd-value">${game.over15_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'ou25', 'over', ${game.over25_odds})">
+                    <div class="odd-label">Over 2.5</div>
+                    <div class="odd-value">${game.over25_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'ou35', 'over', ${game.over35_odds})">
+                    <div class="odd-label">Over 3.5</div>
+                    <div class="odd-value">${game.over35_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'ou15', 'under', ${game.under15_odds})">
+                    <div class="odd-label">Under 1.5</div>
+                    <div class="odd-value">${game.under15_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'ou25', 'under', ${game.under25_odds})">
+                    <div class="odd-label">Under 2.5</div>
+                    <div class="odd-value">${game.under25_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'ou35', 'under', ${game.under35_odds})">
+                    <div class="odd-label">Under 3.5</div>
+                    <div class="odd-value">${game.under35_odds}</div>
+                </div>
+            `;
+        }
+
+        // Create GG/NG Odds
+        function createGGOdds(game) {
+            return `
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'gg', 'gg', ${game.gg_odds})">
+                    <div class="odd-label">Both Score</div>
+                    <div class="odd-value">${game.gg_odds}</div>
+                </div>
+                <div class="odd-button" onclick="selectOdd(${game.id}, 'gg', 'ng', ${game.ng_odds})">
+                    <div class="odd-label">No Goal</div>
+                    <div class="odd-value">${game.ng_odds}</div>
+                </div>
+            `;
+        }
+
+        // Show Market
+        async function showMarket(gameId, market) {
+            // Update active tab
+            const card = event.target.closest('.game-card');
+            card.querySelectorAll('.market-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Get game data
+            const response = await fetch(`${API_URL}/games/${gameId}`);
+            const data = await response.json();
+            const game = data.game;
+            
+            // Update odds display
+            const container = document.getElementById(`market-${gameId}`);
+            
+            if (market === '1x2') {
+                container.innerHTML = create1X2Odds(game);
+            } else if (market === 'ou') {
+                container.innerHTML = createOUOdds(game);
+            } else if (market === 'gg') {
+                container.innerHTML = createGGOdds(game);
+            }
+        }
+
+        // Select Odd
+        function selectOdd(gameId, market, selection, odds) {
+            const card = event.target.closest('.game-card');
+            card.querySelectorAll('.odd-button').forEach(btn => btn.classList.remove('selected'));
+            event.target.closest('.odd-button').classList.add('selected');
+            
+            selectedBets[gameId] = { market, selection, odds };
+        }
+
+        // Place Bet
+        async function placeBet(gameId) {
+            if (!token) {
+                alert('Please login to place bets');
+                return;
+            }
+            
+            const betSelection = selectedBets[gameId];
+            if (!betSelection) {
+                alert('Please select an odd first');
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById(`amount-${gameId}`).value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid bet amount');
+                return;
+            }
+            
+            try {
+                // Get game details
+                const gameResponse = await fetch(`${API_URL}/games/${gameId}`);
+                const gameData = await gameResponse.json();
+                const game = gameData.game;
+                
+                const eventDesc = `${game.home_team.name} vs ${game.away_team.name} - ${betSelection.market} - ${betSelection.selection}`;
+                
+                // Place bet via betting API
+                const response = await fetch('/api/bets/place', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        match_id: gameId,
+                        amount: amount,
+                        odds: betSelection.odds,
+                        bet_type: 'virtual',
+                        market_type: betSelection.market,
+                        selection: betSelection.selection,
+                        event_description: eventDesc
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(`Bet placed successfully! Potential payout: $${(amount * betSelection.odds).toFixed(2)}`);
+                    document.getElementById(`amount-${gameId}`).value = '';
+                    delete selectedBets[gameId];
+                    
+                    // Clear selection
+                    document.querySelectorAll('.odd-button').forEach(btn => btn.classList.remove('selected'));
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error placing bet: ' + error.message);
+            }
+        }
+
+        // Initial load
+        loadLeagues();
+        
+        // Auto-refresh every 5 seconds
+        setInterval(() => {
+            if (selectedLeague) {
+                loadGames();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

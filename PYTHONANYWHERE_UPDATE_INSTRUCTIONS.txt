@@ -1,0 +1,64 @@
+# Updated Files for PythonAnywhere - Copy these to your server
+
+## Files Modified (copy these to /home/Lilkolex/ABKBet/):
+
+### 1. app/__init__.py
+- Fixed CORS configuration for better API access
+
+### 2. app/routes/bet_routes.py
+- Fixed bet creation to link match_id properly
+- Added logging for match linking
+- Improved match score retrieval
+
+### 3. app/routes/admin_routes.py
+- Enhanced settlement logic with detailed logging
+- Fixed Match Result detection (HOME/AWAY/DRAW)
+- Fixed Over/Under settlement (over2/under2 recognition)
+- Added BTTS settlement
+- Improved bet matching with regex
+
+### 4. static/abkbet-client.js
+- Added match_id parameter to createBet function
+
+### 5. templates/index.html
+- Fixed bet selection storage (now stores "home" instead of "1 picks")
+- Pass match_id when creating bets
+- Improved ticket display (selection shown first, score next to match name)
+- Fixed match score display in tickets
+
+### 6. requirements.txt
+- Fixed numpy version from 2.3.5 to 1.26.4 (compatible with Python 3.10)
+
+## Quick Update Commands for PythonAnywhere:
+
+```bash
+# 1. Go to your Bash console on PythonAnywhere
+
+# 2. Backup current files
+cd /home/Lilkolex/ABKBet
+cp app/__init__.py app/__init__.py.backup
+cp app/routes/bet_routes.py app/routes/bet_routes.py.backup
+cp app/routes/admin_routes.py app/routes/admin_routes.py.backup
+cp static/abkbet-client.js static/abkbet-client.js.backup
+cp templates/index.html templates/index.html.backup
+cp requirements.txt requirements.txt.backup
+
+# 3. Update requirements.txt (edit manually or upload new file)
+nano requirements.txt
+# Change numpy==2.3.5 to numpy==1.26.4
+
+# 4. Upload the modified files via Files tab or use nano to edit them
+
+# 5. After uploading all files, reload your web app
+# Go to Web tab → Click "Reload" button
+```
+
+## Option 1: Manual File Upload
+1. Go to Files tab on PythonAnywhere
+2. Navigate to each file location
+3. Click "Upload" and replace each modified file
+
+## Option 2: Create Update Package
+I can create a zip with ONLY the changed files for you to upload and extract.
+
+Which option would you prefer?

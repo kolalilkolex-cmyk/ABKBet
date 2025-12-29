@@ -1,0 +1,627 @@
+<!-- Compact Virtual Games Section (Replace the current virtual tab content in index.html) -->
+<style>
+    /* Compact Virtual Games Styles */
+    .virtual-compact-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 15px;
+    }
+    
+    .virtual-league-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .virtual-league-tab {
+        flex: 1;
+        min-width: 120px;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border: 2px solid #475569;
+        border-radius: 8px;
+        color: #94a3b8;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .virtual-league-tab.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-color: #60a5fa;
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    
+    .virtual-games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .virtual-match-compact {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 12px;
+        transition: all 0.3s;
+    }
+    
+    .virtual-match-compact:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+    
+    .virtual-match-compact.live {
+        border-color: #ef4444;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        animation: livePulse 2s infinite;
+    }
+    
+    @keyframes livePulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+    }
+    
+    .virtual-timer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 6px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .virtual-timer.countdown {
+        color: #60a5fa;
+    }
+    
+    .virtual-timer.live {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .virtual-timer.finished {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .virtual-teams {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+    }
+    
+    .virtual-team-name {
+        flex: 1;
+        font-weight: 600;
+        color: #e2e8f0;
+        font-size: 14px;
+    }
+    
+    .virtual-vs {
+        padding: 0 10px;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 12px;
+    }
+    
+    .virtual-score {
+        font-size: 24px;
+        font-weight: 700;
+        color: #10b981;
+        text-align: center;
+        margin: 8px 0;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .virtual-score.animating {
+        animation: scoreFlash 0.3s;
+    }
+    
+    @keyframes scoreFlash {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); color: #fbbf24; }
+    }
+    
+    .virtual-odds-compact {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 10px;
+    }
+    
+    .virtual-odd-btn {
+        padding: 8px 4px;
+        background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+        border: 1px solid #475569;
+        border-radius: 6px;
+        color: #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 12px;
+    }
+    
+    .virtual-odd-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-color: #60a5fa;
+        transform: translateY(-2px);
+    }
+    
+    .virtual-odd-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    .virtual-odd-btn.selected {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: #34d399;
+    }
+    
+    .virtual-odd-label {
+        font-weight: 700;
+        font-size: 11px;
+    }
+    
+    .virtual-odd-value {
+        font-weight: 600;
+        color: #fbbf24;
+        font-size: 13px;
+    }
+    
+    .virtual-progress-bar {
+        width: 100%;
+        height: 4px;
+        background: #1e293b;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
+    .virtual-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+        transition: width 1s linear;
+    }
+    
+    .virtual-progress-fill.live {
+        background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+    }
+    
+    .virtual-minute-indicator {
+        font-size: 11px;
+        color: #94a3b8;
+        text-align: center;
+        margin-top: 4px;
+    }
+</style>
+
+<script>
+// Virtual Games - Compact Version with Auto-Play
+const VIRTUAL_CONFIG = {
+    COUNTDOWN_SECONDS: 240,  // 4 minutes countdown
+    GAME_DURATION_SECONDS: 40,  // 40 seconds game play
+    LEAGUE_OFFSET_SECONDS: 80,  // 80 seconds between leagues (240/3)
+    UPDATE_INTERVAL_MS: 1000,  // Update every second
+    SCORE_UPDATE_INTERVAL_MS: 3000  // Score updates every 3 seconds during game
+};
+
+let virtualGames = {
+    1: [],  // Premier League
+    2: [],  // La Liga
+    3: []   // Serie A
+};
+let virtualGameTimers = {};
+let virtualSelectedBets = [];
+let virtualUpdateInterval = null;
+
+// Initialize virtual games
+async function initVirtualGames() {
+    try {
+        const response = await fetch('/api/virtual/leagues');
+        const data = await response.json();
+        
+        if (data.success && data.leagues.length > 0) {
+            // Load initial games for all leagues
+            for (const league of data.leagues) {
+                await loadVirtualLeagueGames(league.id, false);
+            }
+            
+            // Start the update loop
+            startVirtualUpdateLoop();
+            
+            // Load first league by default
+            showVirtualLeague(data.leagues[0].id);
+        }
+    } catch (error) {
+        console.error('Error initializing virtual games:', error);
+    }
+}
+
+// Load games for a league
+async function loadVirtualLeagueGames(leagueId, showAfter = true) {
+    try {
+        const response = await fetch(`/api/virtual/leagues/${leagueId}/games`);
+        const data = await response.json();
+        
+        if (data.success) {
+            virtualGames[leagueId] = data.games.map(game => ({
+                ...game,
+                countdownSeconds: calculateCountdown(game, leagueId),
+                isLive: false,
+                liveSeconds: 0,
+                displayHomeScore: game.home_score,
+                displayAwayScore: game.away_score
+            }));
+            
+            if (showAfter) {
+                showVirtualLeague(leagueId);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading league games:', error);
+    }
+}
+
+// Calculate countdown based on game index and league offset
+function calculateCountdown(game, leagueId) {
+    // Get game index in its league
+    const leagueGames = virtualGames[leagueId] || [];
+    const gameIndex = leagueGames.findIndex(g => g.id === game.id);
+    
+    // Add league offset (stagger leagues)
+    const leagueOffset = (leagueId - 1) * VIRTUAL_CONFIG.LEAGUE_OFFSET_SECONDS;
+    
+    // Each game starts after previous game finishes (countdown + duration)
+    const cycleTime = VIRTUAL_CONFIG.COUNTDOWN_SECONDS + VIRTUAL_CONFIG.GAME_DURATION_SECONDS;
+    
+    return (gameIndex * cycleTime) + leagueOffset;
+}
+
+// Show specific league
+function showVirtualLeague(leagueId) {
+    // Update tab buttons
+    document.querySelectorAll('.virtual-league-tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`vLeague${leagueId}`)?.classList.add('active');
+    
+    // Render games
+    renderVirtualGames(leagueId);
+}
+
+// Render games for current league
+function renderVirtualGames(leagueId) {
+    const games = virtualGames[leagueId] || [];
+    const container = document.getElementById('virtualGamesContainer');
+    
+    if (games.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                <i class="fas fa-hourglass-half" style="font-size: 48px; margin-bottom: 20px;"></i>
+                <h3>No Games Available</h3>
+                <p>Check back soon for new virtual matches!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = games.map(game => renderVirtualMatch(game)).join('');
+}
+
+// Render single match card
+function renderVirtualMatch(game) {
+    const isCountdown = game.status === 'scheduled' && game.countdownSeconds > 0;
+    const isLive = game.status === 'in_progress' || (game.status === 'scheduled' && game.isLive);
+    const isFinished = game.status === 'finished';
+    
+    let timerContent = '';
+    let progressPercent = 0;
+    
+    if (isCountdown) {
+        const minutes = Math.floor(game.countdownSeconds / 60);
+        const seconds = game.countdownSeconds % 60;
+        timerContent = `
+            <div class="virtual-timer countdown">
+                <i class="fas fa-clock"></i>
+                <span>Starts in ${minutes}:${seconds.toString().padStart(2, '0')}</span>
+            </div>
+        `;
+        progressPercent = 100 - ((game.countdownSeconds / VIRTUAL_CONFIG.COUNTDOWN_SECONDS) * 100);
+    } else if (isLive) {
+        const minute = Math.floor((game.liveSeconds / VIRTUAL_CONFIG.GAME_DURATION_SECONDS) * 90);
+        timerContent = `
+            <div class="virtual-timer live">
+                <i class="fas fa-circle"></i>
+                <span>LIVE - ${minute}'</span>
+            </div>
+        `;
+        progressPercent = (game.liveSeconds / VIRTUAL_CONFIG.GAME_DURATION_SECONDS) * 100;
+    } else if (isFinished) {
+        timerContent = `
+            <div class="virtual-timer finished">
+                <i class="fas fa-check-circle"></i>
+                <span>Full Time</span>
+            </div>
+        `;
+        progressPercent = 100;
+    }
+    
+    const showScore = isLive || isFinished;
+    const canBet = isCountdown && !isFinished;
+    
+    return `
+        <div class="virtual-match-compact ${isLive ? 'live' : ''}" data-game-id="${game.id}">
+            ${timerContent}
+            
+            <div class="virtual-teams">
+                <div class="virtual-team-name">${game.home_team}</div>
+                <div class="virtual-vs">VS</div>
+                <div class="virtual-team-name" style="text-align: right;">${game.away_team}</div>
+            </div>
+            
+            ${showScore ? `
+                <div class="virtual-score">
+                    <span>${game.displayHomeScore || 0}</span>
+                    <span style="color: #64748b;">-</span>
+                    <span>${game.displayAwayScore || 0}</span>
+                </div>
+            ` : '<div style="height: 32px;"></div>'}
+            
+            ${canBet ? `
+                <div class="virtual-odds-compact">
+                    <button class="virtual-odd-btn" onclick="addVirtualBet(${game.id}, '1', ${game.home_odds})">
+                        <span class="virtual-odd-label">1</span>
+                        <span class="virtual-odd-value">${game.home_odds.toFixed(2)}</span>
+                    </button>
+                    <button class="virtual-odd-btn" onclick="addVirtualBet(${game.id}, 'X', ${game.draw_odds})">
+                        <span class="virtual-odd-label">X</span>
+                        <span class="virtual-odd-value">${game.draw_odds.toFixed(2)}</span>
+                    </button>
+                    <button class="virtual-odd-btn" onclick="addVirtualBet(${game.id}, '2', ${game.away_odds})">
+                        <span class="virtual-odd-label">2</span>
+                        <span class="virtual-odd-value">${game.away_odds.toFixed(2)}</span>
+                    </button>
+                </div>
+            ` : ''}
+            
+            <div class="virtual-progress-bar">
+                <div class="virtual-progress-fill ${isLive ? 'live' : ''}" style="width: ${progressPercent}%"></div>
+            </div>
+            
+            ${isLive ? `<div class="virtual-minute-indicator">Game in progress...</div>` : ''}
+        </div>
+    `;
+}
+
+// Add virtual bet to betslip
+function addVirtualBet(gameId, selection, odd) {
+    // Find game across all leagues
+    let game = null;
+    let leagueId = null;
+    
+    for (const [lid, games] of Object.entries(virtualGames)) {
+        game = games.find(g => g.id === gameId);
+        if (game) {
+            leagueId = lid;
+            break;
+        }
+    }
+    
+    if (!game) return;
+    
+    // Check if already selected
+    const existingIndex = virtualSelectedBets.findIndex(b => b.gameId === gameId);
+    if (existingIndex >= 0) {
+        virtualSelectedBets.splice(existingIndex, 1);
+    }
+    
+    // Add to betslip
+    virtualSelectedBets.push({
+        gameId: gameId,
+        home: game.home_team,
+        away: game.away_team,
+        selection: selection,
+        odd: odd,
+        leagueId: leagueId
+    });
+    
+    // Update betslip UI
+    updateBetslipUI();
+    
+    showMessage(`Added ${game.home_team} vs ${game.away_team} (${selection}) to betslip`, 'success');
+}
+
+// Update betslip UI
+function updateBetslipUI() {
+    const count = virtualSelectedBets.length;
+    const betslipCount = document.getElementById('betslipCount');
+    const betslipBadge = document.getElementById('betslipBadge');
+    const betslipPicks = document.getElementById('betslipPicks');
+    const betslipSummary = document.getElementById('betslipSummary');
+    
+    if (betslipCount) betslipCount.textContent = count;
+    if (betslipBadge) {
+        betslipBadge.textContent = count;
+        betslipBadge.style.display = count > 0 ? 'block' : 'none';
+    }
+    
+    if (count === 0) {
+        betslipPicks.innerHTML = `
+            <div class="betslip-empty">
+                <i class="fas fa-clipboard-list"></i>
+                <p>Select virtual game odds to add to your bet slip</p>
+            </div>
+        `;
+        betslipSummary.style.display = 'none';
+        return;
+    }
+    
+    // Calculate total odds
+    const totalOdds = virtualSelectedBets.reduce((acc, bet) => acc * bet.odd, 1);
+    
+    // Render picks
+    betslipPicks.innerHTML = virtualSelectedBets.map((bet, index) => `
+        <div class="betslip-pick" style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                <div style="flex: 1;">
+                    <div style="color: #e2e8f0; font-weight: 600; font-size: 13px; margin-bottom: 4px;">
+                        ${bet.home} vs ${bet.away}
+                    </div>
+                    <div style="color: #94a3b8; font-size: 12px;">
+                        <span style="color: #60a5fa;">Virtual League ${bet.leagueId}</span> • Pick: <strong style="color: #fbbf24;">${bet.selection}</strong>
+                    </div>
+                </div>
+                <button onclick="removeVirtualBet(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px 8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="text-align: right; color: #10b981; font-weight: 700; font-size: 14px;">
+                ${bet.odd.toFixed(2)}
+            </div>
+        </div>
+    `).join('');
+    
+    // Update summary
+    document.getElementById('betslipTotalOdds').textContent = totalOdds.toFixed(2);
+    betslipSummary.style.display = 'block';
+    
+    // Show betslip container
+    document.getElementById('betslipContainer')?.classList.remove('hidden');
+}
+
+// Remove virtual bet
+function removeVirtualBet(index) {
+    virtualSelectedBets.splice(index, 1);
+    updateBetslipUI();
+}
+
+// Clear all virtual bets
+function clearVirtualBetslip() {
+    virtualSelectedBets = [];
+    updateBetslipUI();
+}
+
+// Update loop for virtual games
+function startVirtualUpdateLoop() {
+    if (virtualUpdateInterval) clearInterval(virtualUpdateInterval);
+    
+    virtualUpdateInterval = setInterval(() => {
+        updateAllVirtualGames();
+    }, VIRTUAL_CONFIG.UPDATE_INTERVAL_MS);
+}
+
+// Update all games
+function updateAllVirtualGames() {
+    let needsRender = false;
+    
+    for (const [leagueId, games] of Object.entries(virtualGames)) {
+        for (const game of games) {
+            if (game.status === 'finished') continue;
+            
+            // Update countdown
+            if (game.countdownSeconds > 0) {
+                game.countdownSeconds--;
+                needsRender = true;
+                
+                // Start game when countdown reaches 0
+                if (game.countdownSeconds === 0) {
+                    startVirtualGame(game);
+                }
+            }
+            
+            // Update live game
+            if (game.isLive && game.liveSeconds < VIRTUAL_CONFIG.GAME_DURATION_SECONDS) {
+                game.liveSeconds++;
+                needsRender = true;
+                
+                // Randomly update scores
+                if (game.liveSeconds % 3 === 0 && Math.random() > 0.7) {
+                    if (Math.random() > 0.5) {
+                        game.displayHomeScore++;
+                    } else {
+                        game.displayAwayScore++;
+                    }
+                    
+                    // Add animation
+                    animateScoreUpdate(game.id);
+                }
+                
+                // Finish game when duration completes
+                if (game.liveSeconds >= VIRTUAL_CONFIG.GAME_DURATION_SECONDS) {
+                    finishVirtualGame(game);
+                }
+            }
+        }
+    }
+    
+    // Re-render if needed
+    if (needsRender) {
+        const activeTab = document.querySelector('.virtual-league-tab.active');
+        if (activeTab) {
+            const leagueId = activeTab.id.replace('vLeague', '');
+            renderVirtualGames(parseInt(leagueId));
+        }
+    }
+}
+
+// Start virtual game
+function startVirtualGame(game) {
+    game.isLive = true;
+    game.liveSeconds = 0;
+    game.displayHomeScore = 0;
+    game.displayAwayScore = 0;
+    game.status = 'in_progress';
+    
+    console.log(`🎮 Virtual game started: ${game.home_team} vs ${game.away_team}`);
+}
+
+// Finish virtual game
+function finishVirtualGame(game) {
+    game.isLive = false;
+    game.status = 'finished';
+    game.home_score = game.displayHomeScore;
+    game.away_score = game.displayAwayScore;
+    
+    console.log(`✅ Virtual game finished: ${game.home_team} ${game.home_score} - ${game.away_score} ${game.away_team}`);
+    
+    // TODO: Send result to backend to settle bets
+}
+
+// Animate score update
+function animateScoreUpdate(gameId) {
+    const gameCard = document.querySelector(`[data-game-id="${gameId}"] .virtual-score`);
+    if (gameCard) {
+        gameCard.classList.add('animating');
+        setTimeout(() => gameCard.classList.remove('animating'), 300);
+    }
+}
+
+// Initialize when virtual tab is shown
+document.addEventListener('DOMContentLoaded', () => {
+    const virtualTab = document.getElementById('virtualTab');
+    if (virtualTab) {
+        virtualTab.addEventListener('click', () => {
+            if (!virtualUpdateInterval) {
+                initVirtualGames();
+            }
+        });
+    }
+});
+</script>

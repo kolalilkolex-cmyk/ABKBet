@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install deps
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install Flask-Migrate requests
+
+    - name: Initialize instance dir
+      run: mkdir -p instance
+
+    - name: Set env
+      run: |
+        echo "FLASK_APP=run:create_app" >> $GITHUB_ENV
+        echo "DATABASE_URL=sqlite:///instance/betting.db" >> $GITHUB_ENV
+        echo "ADMIN_TOKEN=admin-secret" >> $GITHUB_ENV
+
+    - name: Run migrations
+      run: |
+        flask db upgrade || true
+
+    - name: Start server
+      run: |
+        nohup flask run --host=127.0.0.1 --port=5000 > server.log 2>&1 &
+        # wait for server to start
+        sleep 3
+
+    - name: Run smoke test
+      run: |
+        python smoke_test.py

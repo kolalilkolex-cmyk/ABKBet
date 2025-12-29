@@ -1,0 +1,788 @@
+=================================================================
+VIRTUAL GAMES - COMPLETE REPLACEMENT CODE
+Copy sections below and paste into your index.html file
+=================================================================
+
+========================= SECTION 1: CSS STYLES =========================
+Find the <style> tag in index.html (around line 100)
+Add this AT THE END, just before </style>:
+
+        /* ========== VIRTUAL GAMES COMPACT UI ========== */
+        .virtual-compact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .virtual-league-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .virtual-league-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border: 2px solid #475569;
+            border-radius: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .virtual-league-tab.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #60a5fa;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .virtual-games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .virtual-match-compact {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        
+        .virtual-match-compact:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+        
+        .virtual-match-compact.live {
+            border-color: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            animation: livePulse 2s infinite;
+        }
+        
+        @keyframes livePulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+        }
+        
+        .virtual-timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .virtual-timer.countdown {
+            color: #60a5fa;
+        }
+        
+        .virtual-timer.live {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .virtual-timer.finished {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .virtual-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .virtual-team-name {
+            flex: 1;
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .virtual-vs {
+            padding: 0 10px;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        
+        .virtual-score {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+            text-align: center;
+            margin: 8px 0;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .virtual-score.animating {
+            animation: scoreFlash 0.3s;
+        }
+        
+        @keyframes scoreFlash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); color: #fbbf24; }
+        }
+        
+        .virtual-odds-compact {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+        
+        .virtual-odd-btn {
+            padding: 8px 4px;
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 12px;
+        }
+        
+        .virtual-odd-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+        }
+        
+        .virtual-odd-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .virtual-odd-btn.selected {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #34d399;
+        }
+        
+        .virtual-odd-label {
+            font-weight: 700;
+            font-size: 11px;
+        }
+        
+        .virtual-odd-value {
+            font-weight: 600;
+            color: #fbbf24;
+            font-size: 13px;
+        }
+        
+        .virtual-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #1e293b;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .virtual-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+            transition: width 1s linear;
+        }
+        
+        .virtual-progress-fill.live {
+            background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+        }
+        
+        .virtual-minute-indicator {
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 4px;
+        }
+        /* ========== END VIRTUAL GAMES CSS ========== */
+
+
+========================= SECTION 2: HTML STRUCTURE =========================
+Find: <!-- Virtual Tab --> (around line 1917)
+Replace the ENTIRE virtual tab content with this:
+
+    <!-- Virtual Tab -->
+    <div class="tab-content" id="virtualContent" style="display: none;">
+        <div class="virtual-compact-container">
+            <!-- Virtual League Tabs -->
+            <div class="virtual-league-tabs">
+                <button id="vLeague1" class="virtual-league-tab active" onclick="showVirtualLeague(1)">
+                    <i class="fas fa-trophy"></i> Premier League
+                </button>
+                <button id="vLeague2" class="virtual-league-tab" onclick="showVirtualLeague(2)">
+                    <i class="fas fa-trophy"></i> La Liga
+                </button>
+                <button id="vLeague3" class="virtual-league-tab" onclick="showVirtualLeague(3)">
+                    <i class="fas fa-trophy"></i> Serie A
+                </button>
+            </div>
+            
+            <!-- Virtual Games Grid -->
+            <div class="virtual-games-grid" id="virtualGamesContainer">
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">⚽</div>
+                    <h2 style="color: #60a5fa; margin-bottom: 10px;">Virtual Games</h2>
+                    <p style="color: #94a3b8; margin-bottom: 30px;">Click a league to start!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+========================= SECTION 3: JAVASCRIPT =========================
+Find: // Virtual Games JavaScript (around line 8014)
+Delete ALL virtual games JavaScript and replace with this complete code:
+
+    <script>
+        // ========== VIRTUAL GAMES - COMPACT WITH AUTO-PLAY ==========
+        const VIRTUAL_CONFIG = {
+            COUNTDOWN_SECONDS: 240,  // 4 minutes countdown
+            GAME_DURATION_SECONDS: 40,  // 40 seconds game play
+            LEAGUE_OFFSET_SECONDS: 80,  // 80 seconds between leagues
+            UPDATE_INTERVAL_MS: 1000,  // Update every second
+            SCORE_UPDATE_INTERVAL_MS: 3000  // Score updates every 3 seconds
+        };
+
+        let virtualGames = {
+            1: [],  // Premier League
+            2: [],  // La Liga
+            3: []   // Serie A
+        };
+        let virtualSelectedBets = [];
+        let virtualUpdateInterval = null;
+        let virtualInitialized = false;
+
+        // Initialize virtual games
+        async function initVirtualGames() {
+            if (virtualInitialized) return;
+            virtualInitialized = true;
+            
+            try {
+                const response = await fetch('/api/virtual/leagues');
+                const data = await response.json();
+                
+                if (data.success && data.leagues.length > 0) {
+                    // Load initial games for all leagues
+                    for (const league of data.leagues) {
+                        await loadVirtualLeagueGames(league.id, false);
+                    }
+                    
+                    // Start the update loop
+                    startVirtualUpdateLoop();
+                    
+                    // Show first league by default
+                    showVirtualLeague(1);
+                }
+            } catch (error) {
+                console.error('Error initializing virtual games:', error);
+                document.getElementById('virtualGamesContainer').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <h3>Error Loading Games</h3>
+                        <p>Please refresh the page or contact support.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load games for a league
+        async function loadVirtualLeagueGames(leagueId, showAfter = true) {
+            try {
+                const response = await fetch(`/api/virtual/leagues/${leagueId}/games`);
+                const data = await response.json();
+                
+                if (data.success && data.games) {
+                    virtualGames[leagueId] = data.games.map((game, index) => ({
+                        ...game,
+                        countdownSeconds: calculateInitialCountdown(index, leagueId),
+                        isLive: false,
+                        liveSeconds: 0,
+                        displayHomeScore: 0,
+                        displayAwayScore: 0
+                    }));
+                    
+                    if (showAfter) {
+                        showVirtualLeague(leagueId);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading league games:', error);
+            }
+        }
+
+        // Calculate initial countdown based on game index and league offset
+        function calculateInitialCountdown(gameIndex, leagueId) {
+            // Add league offset (stagger leagues)
+            const leagueOffset = (leagueId - 1) * VIRTUAL_CONFIG.LEAGUE_OFFSET_SECONDS;
+            
+            // Each game starts after previous game finishes
+            const cycleTime = VIRTUAL_CONFIG.COUNTDOWN_SECONDS + VIRTUAL_CONFIG.GAME_DURATION_SECONDS;
+            
+            return (gameIndex * cycleTime) + leagueOffset;
+        }
+
+        // Show specific league
+        function showVirtualLeague(leagueId) {
+            // Update tab buttons
+            document.querySelectorAll('.virtual-league-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`vLeague${leagueId}`)?.classList.add('active');
+            
+            // Render games
+            renderVirtualGames(leagueId);
+        }
+
+        // Render games for current league
+        function renderVirtualGames(leagueId) {
+            const games = virtualGames[leagueId] || [];
+            const container = document.getElementById('virtualGamesContainer');
+            
+            if (games.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">
+                        <i class="fas fa-hourglass-half" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <h3>No Games Available</h3>
+                        <p>Check back soon for new virtual matches!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = games.map(game => renderVirtualMatch(game)).join('');
+        }
+
+        // Render single match card
+        function renderVirtualMatch(game) {
+            const isCountdown = game.countdownSeconds > 0 && !game.isLive;
+            const isLive = game.isLive;
+            const isFinished = game.status === 'finished';
+            
+            let timerContent = '';
+            let progressPercent = 0;
+            
+            if (isCountdown) {
+                const minutes = Math.floor(game.countdownSeconds / 60);
+                const seconds = game.countdownSeconds % 60;
+                timerContent = `
+                    <div class="virtual-timer countdown">
+                        <i class="fas fa-clock"></i>
+                        <span>Starts in ${minutes}:${seconds.toString().padStart(2, '0')}</span>
+                    </div>
+                `;
+                progressPercent = 100 - ((game.countdownSeconds / VIRTUAL_CONFIG.COUNTDOWN_SECONDS) * 100);
+            } else if (isLive) {
+                const minute = Math.floor((game.liveSeconds / VIRTUAL_CONFIG.GAME_DURATION_SECONDS) * 90);
+                timerContent = `
+                    <div class="virtual-timer live">
+                        <i class="fas fa-circle"></i>
+                        <span>LIVE - ${minute}'</span>
+                    </div>
+                `;
+                progressPercent = (game.liveSeconds / VIRTUAL_CONFIG.GAME_DURATION_SECONDS) * 100;
+            } else if (isFinished) {
+                timerContent = `
+                    <div class="virtual-timer finished">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Full Time</span>
+                    </div>
+                `;
+                progressPercent = 100;
+            }
+            
+            const showScore = isLive || isFinished;
+            const canBet = isCountdown && !isFinished;
+            
+            // Check if already selected
+            const isSelected = bet => virtualSelectedBets.some(b => b.gameId === game.id && b.selection === bet);
+            
+            return `
+                <div class="virtual-match-compact ${isLive ? 'live' : ''}" data-game-id="${game.id}">
+                    ${timerContent}
+                    
+                    <div class="virtual-teams">
+                        <div class="virtual-team-name">${game.home_team}</div>
+                        <div class="virtual-vs">VS</div>
+                        <div class="virtual-team-name" style="text-align: right;">${game.away_team}</div>
+                    </div>
+                    
+                    ${showScore ? `
+                        <div class="virtual-score" id="score-${game.id}">
+                            <span>${game.displayHomeScore || 0}</span>
+                            <span style="color: #64748b;">-</span>
+                            <span>${game.displayAwayScore || 0}</span>
+                        </div>
+                    ` : '<div style="height: 32px;"></div>'}
+                    
+                    ${canBet ? `
+                        <div class="virtual-odds-compact">
+                            <button class="virtual-odd-btn ${isSelected('1') ? 'selected' : ''}" 
+                                    onclick="addVirtualBet(${game.id}, '1', ${game.home_odds}, '${game.home_team}', '${game.away_team}')">
+                                <span class="virtual-odd-label">1</span>
+                                <span class="virtual-odd-value">${game.home_odds.toFixed(2)}</span>
+                            </button>
+                            <button class="virtual-odd-btn ${isSelected('X') ? 'selected' : ''}" 
+                                    onclick="addVirtualBet(${game.id}, 'X', ${game.draw_odds}, '${game.home_team}', '${game.away_team}')">
+                                <span class="virtual-odd-label">X</span>
+                                <span class="virtual-odd-value">${game.draw_odds.toFixed(2)}</span>
+                            </button>
+                            <button class="virtual-odd-btn ${isSelected('2') ? 'selected' : ''}" 
+                                    onclick="addVirtualBet(${game.id}, '2', ${game.away_odds}, '${game.home_team}', '${game.away_team}')">
+                                <span class="virtual-odd-label">2</span>
+                                <span class="virtual-odd-value">${game.away_odds.toFixed(2)}</span>
+                            </button>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="virtual-progress-bar">
+                        <div class="virtual-progress-fill ${isLive ? 'live' : ''}" style="width: ${progressPercent}%"></div>
+                    </div>
+                    
+                    ${isLive ? `<div class="virtual-minute-indicator">Game in progress...</div>` : ''}
+                </div>
+            `;
+        }
+
+        // Add virtual bet to betslip
+        function addVirtualBet(gameId, selection, odd, home, away) {
+            // Find game across all leagues
+            let game = null;
+            let leagueId = null;
+            
+            for (const [lid, games] of Object.entries(virtualGames)) {
+                game = games.find(g => g.id === gameId);
+                if (game) {
+                    leagueId = lid;
+                    break;
+                }
+            }
+            
+            if (!game) return;
+            
+            // Check if already selected
+            const existingIndex = virtualSelectedBets.findIndex(b => b.gameId === gameId);
+            if (existingIndex >= 0) {
+                // If same selection, remove it
+                if (virtualSelectedBets[existingIndex].selection === selection) {
+                    virtualSelectedBets.splice(existingIndex, 1);
+                    showMessage('Removed from betslip', 'info');
+                } else {
+                    // Replace with new selection
+                    virtualSelectedBets[existingIndex].selection = selection;
+                    virtualSelectedBets[existingIndex].odd = odd;
+                    showMessage(`Updated to ${selection}`, 'success');
+                }
+            } else {
+                // Add new bet
+                virtualSelectedBets.push({
+                    gameId: gameId,
+                    home: home,
+                    away: away,
+                    selection: selection,
+                    odd: odd,
+                    leagueId: leagueId,
+                    leagueName: leagueId == 1 ? 'Premier League' : leagueId == 2 ? 'La Liga' : 'Serie A'
+                });
+                showMessage(`Added ${home} vs ${away} (${selection}) to betslip`, 'success');
+            }
+            
+            // Update betslip UI
+            updateVirtualBetslipUI();
+            
+            // Re-render current league to update button states
+            const activeTab = document.querySelector('.virtual-league-tab.active');
+            if (activeTab) {
+                const activeLeagueId = activeTab.id.replace('vLeague', '');
+                renderVirtualGames(parseInt(activeLeagueId));
+            }
+        }
+
+        // Update betslip UI
+        function updateVirtualBetslipUI() {
+            const count = virtualSelectedBets.length;
+            const betslipCount = document.getElementById('betslipCount');
+            const betslipBadge = document.getElementById('betslipBadge');
+            const betslipPicks = document.getElementById('betslipPicks');
+            const betslipSummary = document.getElementById('betslipSummary');
+            const betslipContainer = document.getElementById('betslipContainer');
+            
+            if (betslipCount) betslipCount.textContent = count;
+            if (betslipBadge) {
+                betslipBadge.textContent = count;
+                betslipBadge.style.display = count > 0 ? 'block' : 'none';
+            }
+            
+            if (count === 0) {
+                if (betslipPicks) {
+                    betslipPicks.innerHTML = `
+                        <div class="betslip-empty">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>Select virtual game odds to bet</p>
+                        </div>
+                    `;
+                }
+                if (betslipSummary) betslipSummary.style.display = 'none';
+                return;
+            }
+            
+            // Calculate total odds
+            const totalOdds = virtualSelectedBets.reduce((acc, bet) => acc * bet.odd, 1);
+            
+            // Render picks
+            if (betslipPicks) {
+                betslipPicks.innerHTML = virtualSelectedBets.map((bet, index) => `
+                    <div class="betslip-pick" style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                            <div style="flex: 1;">
+                                <div style="color: #e2e8f0; font-weight: 600; font-size: 13px; margin-bottom: 4px;">
+                                    ${bet.home} vs ${bet.away}
+                                </div>
+                                <div style="color: #94a3b8; font-size: 12px;">
+                                    <span style="color: #60a5fa;">⚡ ${bet.leagueName}</span> • Pick: <strong style="color: #fbbf24;">${bet.selection}</strong>
+                                </div>
+                            </div>
+                            <button onclick="removeVirtualBet(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px 8px; font-size: 16px;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div style="text-align: right; color: #10b981; font-weight: 700; font-size: 14px;">
+                            ${bet.odd.toFixed(2)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Update summary
+            if (document.getElementById('betslipTotalOdds')) {
+                document.getElementById('betslipTotalOdds').textContent = totalOdds.toFixed(2);
+            }
+            if (betslipSummary) betslipSummary.style.display = 'block';
+            
+            // Show betslip container
+            if (betslipContainer) betslipContainer.classList.remove('hidden');
+        }
+
+        // Remove virtual bet
+        function removeVirtualBet(index) {
+            virtualSelectedBets.splice(index, 1);
+            updateVirtualBetslipUI();
+            
+            // Re-render to update button states
+            const activeTab = document.querySelector('.virtual-league-tab.active');
+            if (activeTab) {
+                const leagueId = activeTab.id.replace('vLeague', '');
+                renderVirtualGames(parseInt(leagueId));
+            }
+        }
+
+        // Update loop for virtual games
+        function startVirtualUpdateLoop() {
+            if (virtualUpdateInterval) clearInterval(virtualUpdateInterval);
+            
+            virtualUpdateInterval = setInterval(() => {
+                updateAllVirtualGames();
+            }, VIRTUAL_CONFIG.UPDATE_INTERVAL_MS);
+        }
+
+        // Update all games
+        function updateAllVirtualGames() {
+            let needsRender = false;
+            
+            for (const [leagueId, games] of Object.entries(virtualGames)) {
+                for (const game of games) {
+                    if (game.status === 'finished') continue;
+                    
+                    // Update countdown
+                    if (game.countdownSeconds > 0 && !game.isLive) {
+                        game.countdownSeconds--;
+                        needsRender = true;
+                        
+                        // Start game when countdown reaches 0
+                        if (game.countdownSeconds === 0) {
+                            startVirtualGame(game);
+                        }
+                    }
+                    
+                    // Update live game
+                    if (game.isLive && game.liveSeconds < VIRTUAL_CONFIG.GAME_DURATION_SECONDS) {
+                        game.liveSeconds++;
+                        needsRender = true;
+                        
+                        // Randomly update scores every 3 seconds
+                        if (game.liveSeconds % 3 === 0 && Math.random() > 0.6) {
+                            if (Math.random() > 0.5) {
+                                game.displayHomeScore++;
+                            } else {
+                                game.displayAwayScore++;
+                            }
+                            
+                            // Add animation
+                            animateScoreUpdate(game.id);
+                        }
+                        
+                        // Finish game when duration completes
+                        if (game.liveSeconds >= VIRTUAL_CONFIG.GAME_DURATION_SECONDS) {
+                            finishVirtualGame(game);
+                        }
+                    }
+                }
+            }
+            
+            // Re-render if needed
+            if (needsRender) {
+                const activeTab = document.querySelector('.virtual-league-tab.active');
+                if (activeTab) {
+                    const leagueId = activeTab.id.replace('vLeague', '');
+                    renderVirtualGames(parseInt(leagueId));
+                }
+            }
+        }
+
+        // Start virtual game
+        function startVirtualGame(game) {
+            game.isLive = true;
+            game.liveSeconds = 0;
+            game.displayHomeScore = 0;
+            game.displayAwayScore = 0;
+            
+            console.log(`🎮 Virtual game started: ${game.home_team} vs ${game.away_team}`);
+        }
+
+        // Finish virtual game
+        function finishVirtualGame(game) {
+            game.isLive = false;
+            game.status = 'finished';
+            game.home_score = game.displayHomeScore;
+            game.away_score = game.displayAwayScore;
+            
+            console.log(`✅ Virtual game finished: ${game.home_team} ${game.home_score} - ${game.away_score} ${game.away_team}`);
+            
+            // Remove any bets on this game from betslip (game ended)
+            virtualSelectedBets = virtualSelectedBets.filter(b => b.gameId !== game.id);
+            updateVirtualBetslipUI();
+        }
+
+        // Animate score update
+        function animateScoreUpdate(gameId) {
+            const scoreEl = document.getElementById(`score-${gameId}`);
+            if (scoreEl) {
+                scoreEl.classList.add('animating');
+                setTimeout(() => scoreEl.classList.remove('animating'), 300);
+            }
+        }
+
+        // Hook into existing clearBetslip function
+        const originalClearBetslip = window.clearBetslip;
+        window.clearBetslip = function() {
+            if (originalClearBetslip) originalClearBetslip();
+            virtualSelectedBets = [];
+            updateVirtualBetslipUI();
+        };
+
+        // Initialize when Virtual tab is clicked
+        document.addEventListener('DOMContentLoaded', () => {
+            const virtualTab = document.getElementById('virtualTab');
+            if (virtualTab) {
+                virtualTab.addEventListener('click', () => {
+                    if (!virtualInitialized) {
+                        initVirtualGames();
+                    }
+                });
+            }
+        });
+        
+        // ========== END VIRTUAL GAMES ==========
+    </script>
+
+
+========================= SECTION 4: BACKEND INTEGRATION =========================
+The virtual bets are now stored in virtualSelectedBets array.
+To place bets, add this to your placeBetslipBet() function (around line 5600):
+
+// At the start of placeBetslipBet() function, add:
+if (virtualSelectedBets && virtualSelectedBets.length > 0) {
+    try {
+        const stake = parseFloat(document.getElementById('betslipStake').value);
+        if (!stake || stake < 1) {
+            showMessage('Please enter a valid stake (minimum $1)', 'error');
+            return;
+        }
+        
+        const betData = {
+            stake: stake,
+            selections: virtualSelectedBets.map(bet => ({
+                game_id: bet.gameId,
+                market: '1X2',
+                selection: bet.selection,
+                odd: bet.odd
+            }))
+        };
+        
+        const response = await fetch('/api/virtual/bets', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${client.token}`
+            },
+            body: JSON.stringify(betData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage(`✅ Virtual bet placed! Bet ID: ${data.bet_id}`, 'success');
+            virtualSelectedBets = [];
+            updateVirtualBetslipUI();
+            await refreshUserBalance();
+        } else {
+            showMessage(data.error || 'Failed to place virtual bet', 'error');
+        }
+    } catch (error) {
+        console.error('Error placing virtual bet:', error);
+        showMessage('Error placing virtual bet', 'error');
+    }
+    return;  // Don't continue to regular bet placement
+}
+
+
+========================= DONE! =========================
+After adding all 4 sections:
+1. Save index.html
+2. Upload to PythonAnywhere (/home/ABKBet/ABKBet/templates/index.html)
+3. Reload web app
+4. Test!
+
+Features:
+✅ Compact grid layout (3 columns)
+✅ 4-minute countdown before games
+✅ 40-second auto-play with live scores
+✅ Staggered leagues (80s apart)
+✅ Betting integrates with main betslip
+✅ Score animations
+✅ Progress bars
+✅ Auto-finish games
+
+Enjoy! 🎮⚽

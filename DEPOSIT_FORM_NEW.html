@@ -1,0 +1,305 @@
+<!-- IMPROVED DEPOSIT FORM - Replace the existing deposit form in index.html -->
+<!-- Find the section starting with <div class="payment-form"> for DEPOSIT FUNDS -->
+<!-- Replace that entire section (lines ~1909-1928) with this: -->
+
+<div class="payment-form">
+    <h2 style="font-weight: 900; font-size: 22px; letter-spacing: 0.5px;">
+        <i class="fas fa-money-bill-wave"></i> DEPOSIT FUNDS
+    </h2>
+    
+    <!-- Step 1: Select Method and Amount -->
+    <div id="depositStep1" style="display: block;">
+        <form onsubmit="showPaymentDetails(event)">
+            <label for="depositMethod">Payment Method:</label>
+            <select id="depositMethod" name="method" class="payment-input" required onchange="updateMethodInfo()">
+                <option value="">-- Select Payment Method --</option>
+                <option value="bitcoin">Bitcoin (BTC)</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="paypal">PayPal</option>
+                <option value="skrill">Skrill</option>
+                <option value="usdt">USDT (Tether)</option>
+            </select>
+
+            <div id="methodInfo" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 12px; margin: 12px 0; display: none;">
+                <div style="font-size: 13px; color: #94a3b8;"><i class="fas fa-info-circle"></i> Processing Time: <span id="processingTime">-</span></div>
+                <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Min: $<span id="minDeposit">10</span> | Max: $<span id="maxDeposit">10000</span></div>
+            </div>
+
+            <label for="depositAmount">Amount (USD):</label>
+            <input type="number" id="depositAmount" name="amount" class="payment-input" step="0.01" min="10" placeholder="Enter amount in USD" required />
+
+            <button type="submit" class="payment-button">
+                <i class="fas fa-arrow-right"></i> Continue to Payment Details
+            </button>
+        </form>
+    </div>
+
+    <!-- Step 2: Payment Details -->
+    <div id="depositStep2" style="display: none;">
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <h3 style="color: #60a5fa; margin-bottom: 12px;"><i class="fas fa-credit-card"></i> Payment Details</h3>
+            <div id="paymentDetailsContent" style="font-size: 14px; color: #e2e8f0;">
+                <!-- Payment details will be inserted here -->
+            </div>
+        </div>
+
+        <div style="background: #0f172a; border-left: 3px solid #f59e0b; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+            <strong style="color: #f59e0b;"><i class="fas fa-exclamation-triangle"></i> Important:</strong>
+            <div id="paymentInstructions" style="font-size: 13px; color: #94a3b8; margin-top: 8px;">
+                <!-- Instructions will be inserted here -->
+            </div>
+        </div>
+
+        <form onsubmit="submitDepositRequest(event)">
+            <label for="depositReference">Transaction Reference / Transaction ID:</label>
+            <input type="text" id="depositReference" name="reference" class="payment-input" placeholder="Enter your transaction ID" required />
+
+            <label for="depositProof">Payment Proof (Optional):</label>
+            <textarea id="depositProof" name="proof" class="payment-input" rows="2" placeholder="Additional proof or screenshot URL (optional)" style="resize: vertical;"></textarea>
+
+            <div style="display: flex; gap: 12px;">
+                <button type="button" onclick="backToStep1()" class="payment-button" style="background: #334155; flex: 1;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="submit" class="payment-button" style="flex: 2;">
+                    <i class="fas fa-check-circle"></i> Submit Deposit Request
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Deposit Status / Result -->
+    <div class="payment-result" id="depositResult"></div>
+
+    <!-- My Deposit Requests -->
+    <div id="myDeposits" style="margin-top: 20px; display: none;">
+        <h3 style="color: #60a5fa; margin-bottom: 12px;">
+            <i class="fas fa-history"></i> My Deposit Requests
+        </h3>
+        <div id="depositsList" style="max-height: 300px; overflow-y: auto;">
+            <!-- Deposit requests will be listed here -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variable to store selected payment method details
+let selectedPaymentMethod = null;
+let depositAmount = 0;
+
+// Update method info when payment method changes
+async function updateMethodInfo() {
+    const method = document.getElementById('depositMethod').value;
+    const infoDiv = document.getElementById('methodInfo');
+    
+    if (!method) {
+        infoDiv.style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/deposit/method/${method}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            selectedPaymentMethod = data.method;
+            document.getElementById('processingTime').textContent = data.method.details.processing_time;
+            document.getElementById('minDeposit').textContent = data.method.min_deposit;
+            document.getElementById('maxDeposit').textContent = data.method.max_deposit;
+            document.getElementById('depositAmount').min = data.method.min_deposit;
+            document.getElementById('depositAmount').max = data.method.max_deposit;
+            infoDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error fetching payment method:', error);
+    }
+}
+
+// Show payment details (Step 2)
+function showPaymentDetails(event) {
+    event.preventDefault();
+    
+    const method = document.getElementById('depositMethod').value;
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    
+    if (!selectedPaymentMethod) {
+        showMessage('Please select a valid payment method', true);
+        return;
+    }
+    
+    if (amount < selectedPaymentMethod.min_deposit || amount > selectedPaymentMethod.max_deposit) {
+        showMessage(`Amount must be between $${selectedPaymentMethod.min_deposit} and $${selectedPaymentMethod.max_deposit}`, true);
+        return;
+    }
+    
+    depositAmount = amount;
+    
+    // Build payment details HTML
+    const details = selectedPaymentMethod.details;
+    let detailsHTML = '';
+    
+    if (method === 'bitcoin' || method === 'usdt') {
+        detailsHTML = `
+            <div style="margin-bottom: 12px;">
+                <strong style="color: #3b82f6;">Wallet Address:</strong>
+                <div style="background: #0f172a; padding: 10px; border-radius: 4px; margin-top: 4px; word-break: break-all; font-family: monospace;">
+                    ${details.address}
+                </div>
+                <button onclick="copyToClipboard('${details.address}')" style="margin-top: 8px; padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    <i class="fas fa-copy"></i> Copy Address
+                </button>
+            </div>
+            <div style="margin-bottom: 8px;"><strong>Network:</strong> ${details.network}</div>
+            <div style="margin-bottom: 8px;"><strong>Amount to Send:</strong> $${amount.toFixed(2)} USD</div>
+        `;
+    } else if (method === 'bank_transfer') {
+        detailsHTML = `
+            <div style="margin-bottom: 8px;"><strong>Bank Name:</strong> ${details.bank_name}</div>
+            <div style="margin-bottom: 8px;"><strong>Account Name:</strong> ${details.account_name}</div>
+            <div style="margin-bottom: 8px;"><strong>Account Number:</strong> ${details.account_number}</div>
+            <div style="margin-bottom: 8px;"><strong>Routing Number:</strong> ${details.routing_number}</div>
+            <div style="margin-bottom: 8px;"><strong>SWIFT Code:</strong> ${details.swift_code}</div>
+            <div style="margin-bottom: 8px;"><strong>Amount to Send:</strong> $${amount.toFixed(2)} USD</div>
+            <div style="color: #f59e0b; font-size: 13px; margin-top: 8px;"><i class="fas fa-info-circle"></i> Use your username as the transfer reference</div>
+        `;
+    } else if (method === 'paypal' || method === 'skrill') {
+        detailsHTML = `
+            <div style="margin-bottom: 12px;">
+                <strong style="color: #3b82f6;">Send Payment To:</strong>
+                <div style="background: #0f172a; padding: 10px; border-radius: 4px; margin-top: 4px; font-family: monospace;">
+                    ${details.email}
+                </div>
+                <button onclick="copyToClipboard('${details.email}')" style="margin-top: 8px; padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    <i class="fas fa-copy"></i> Copy Email
+                </button>
+            </div>
+            <div style="margin-bottom: 8px;"><strong>Amount to Send:</strong> $${amount.toFixed(2)} USD</div>
+            <div style="color: #f59e0b; font-size: 13px; margin-top: 8px;"><i class="fas fa-info-circle"></i> Add your username in the payment note</div>
+        `;
+    }
+    
+    document.getElementById('paymentDetailsContent').innerHTML = detailsHTML;
+    
+    // Build instructions HTML
+    const instructions = selectedPaymentMethod.instructions;
+    let instructionsHTML = '<ol style="margin: 0; padding-left: 20px;">';
+    instructions.forEach(instruction => {
+        instructionsHTML += `<li style="margin-bottom: 6px;">${instruction}</li>`;
+    });
+    instructionsHTML += '</ol>';
+    document.getElementById('paymentInstructions').innerHTML = instructionsHTML;
+    
+    // Switch to step 2
+    document.getElementById('depositStep1').style.display = 'none';
+    document.getElementById('depositStep2').style.display = 'block';
+}
+
+// Back to step 1
+function backToStep1() {
+    document.getElementById('depositStep2').style.display = 'none';
+    document.getElementById('depositStep1').style.display = 'block';
+}
+
+// Submit deposit request
+async function submitDepositRequest(event) {
+    event.preventDefault();
+    
+    const method = document.getElementById('depositMethod').value;
+    const reference = document.getElementById('depositReference').value;
+    const proof = document.getElementById('depositProof').value;
+    
+    try {
+        const response = await client.request('/deposit/request', {
+            method: 'POST',
+            body: JSON.stringify({
+                amount: depositAmount,
+                payment_method: method,
+                transaction_reference: reference,
+                payment_proof: proof
+            })
+        });
+        
+        showMessage('✅ Deposit request submitted! Admin will review and approve shortly.', false);
+        
+        // Reset form
+        document.getElementById('depositStep2').style.display = 'none';
+        document.getElementById('depositStep1').style.display = 'block';
+        document.getElementById('depositMethod').value = '';
+        document.getElementById('depositAmount').value = '';
+        document.getElementById('depositReference').value = '';
+        document.getElementById('depositProof').value = '';
+        document.getElementById('methodInfo').style.display = 'none';
+        
+        // Load user's deposit requests
+        loadMyDeposits();
+        
+    } catch (error) {
+        showMessage(`❌ ${error.message}`, true);
+    }
+}
+
+// Load user's deposit requests
+async function loadMyDeposits() {
+    try {
+        const response = await client.request('/deposit/my-requests');
+        const deposits = response.deposits;
+        
+        if (deposits.length === 0) {
+            document.getElementById('myDeposits').style.display = 'none';
+            return;
+        }
+        
+        let html = '';
+        deposits.forEach(deposit => {
+            const statusColor = deposit.status === 'approved' ? '#10b981' : 
+                               deposit.status === 'rejected' ? '#ef4444' : '#f59e0b';
+            const statusIcon = deposit.status === 'approved' ? 'check-circle' :
+                              deposit.status === 'rejected' ? 'times-circle' : 'clock';
+            
+            html += `
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 12px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 16px; font-weight: bold; color: #e2e8f0;">$${deposit.amount.toFixed(2)}</div>
+                            <div style="font-size: 13px; color: #94a3b8;">${deposit.payment_method} • ${new Date(deposit.created_at).toLocaleDateString()}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="color: ${statusColor}; font-size: 14px; font-weight: bold;">
+                                <i class="fas fa-${statusIcon}"></i> ${deposit.status.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                    ${deposit.admin_notes ? `<div style="margin-top: 8px; padding: 8px; background: #0f172a; border-radius: 4px; font-size: 12px; color: #94a3b8;"><strong>Note:</strong> ${deposit.admin_notes}</div>` : ''}
+                </div>
+            `;
+        });
+        
+        document.getElementById('depositsList').innerHTML = html;
+        document.getElementById('myDeposits').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading deposits:', error);
+    }
+}
+
+// Copy to clipboard utility
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showMessage('✅ Copied to clipboard!', false);
+    }).catch(() => {
+        showMessage('Failed to copy', true);
+    });
+}
+
+// Load deposits when wallet tab is opened
+document.addEventListener('DOMContentLoaded', () => {
+    // Hook into tab switching to load deposits
+    const originalSwitchTab = window.switchTab;
+    window.switchTab = function(tab) {
+        originalSwitchTab(tab);
+        if (tab === 'wallet') {
+            loadMyDeposits();
+        }
+    };
+});
+</script>

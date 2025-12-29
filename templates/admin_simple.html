@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - ABKBet</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #4CAF50; margin-bottom: 20px; }
+        .login-box, .main-content { background: #1e293b; padding: 30px; border-radius: 10px; }
+        input, button, select, textarea {
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #475569;
+            border-radius: 5px;
+            background: #334155;
+            color: white;
+            font-size: 14px;
+        }
+        button {
+            background: #2196F3;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #1976D2; }
+        .btn-success { background: #4CAF50; }
+        .btn-success:hover { background: #45a049; }
+        .btn-danger { background: #f44336; }
+        .btn-danger:hover { background: #da190b; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #1e293b;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #475569;
+        }
+        th { background: #334155; color: #4CAF50; }
+        .hidden { display: none; }
+        .message {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #2196F3;
+        }
+        .error { background: #f44336; }
+        .success { background: #4CAF50; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="login-box">
+            <h1>🔐 Admin Login</h1>
+            <input type="text" id="username" placeholder="Username" value="alice">
+            <input type="password" id="password" placeholder="Password" value="alice123">
+            <button onclick="login()">Login</button>
+            <div id="loginMessage"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content hidden">
+            <h1>🎮 Manual Matches Management</h1>
+            <button class="btn-success" onclick="showCreateForm()">+ Create New Match</button>
+            <button onclick="loadMatches()">🔄 Refresh Matches</button>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+
+            <div id="messageBox"></div>
+
+            <!-- Create Match Form -->
+            <div id="createForm" class="hidden" style="background: #334155; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <h2>Create New Match</h2>
+                <div class="form-group">
+                    <label>Home Team:</label>
+                    <input type="text" id="homeTeam" placeholder="e.g., Manchester United">
+                </div>
+                <div class="form-group">
+                    <label>Away Team:</label>
+                    <input type="text" id="awayTeam" placeholder="e.g., Liverpool">
+                </div>
+                <div class="form-group">
+                    <label>League:</label>
+                    <input type="text" id="league" placeholder="e.g., Premier League">
+                </div>
+                <div class="form-group">
+                    <label>Match Date & Time:</label>
+                    <input type="datetime-local" id="matchDate">
+                </div>
+                
+                <h3 style="color: #3b82f6; margin-top: 20px;">1X2 (Match Result)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Home Odds:</label>
+                        <input type="number" step="0.01" id="homeOdds" placeholder="e.g., 2.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Draw Odds:</label>
+                        <input type="number" step="0.01" id="drawOdds" placeholder="e.g., 3.2">
+                    </div>
+                    <div class="form-group">
+                        <label>Away Odds:</label>
+                        <input type="number" step="0.01" id="awayOdds" placeholder="e.g., 2.8">
+                    </div>
+                </div>
+                
+                <h3 style="color: #a78bfa; margin-top: 20px;">Double Chance (Optional)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>1X (Home/Draw):</label>
+                        <input type="number" step="0.01" id="homeDrawOdds" placeholder="e.g., 1.5">
+                    </div>
+                    <div class="form-group">
+                        <label>12 (Home/Away):</label>
+                        <input type="number" step="0.01" id="homeAwayOdds" placeholder="e.g., 1.3">
+                    </div>
+                    <div class="form-group">
+                        <label>X2 (Draw/Away):</label>
+                        <input type="number" step="0.01" id="drawAwayOdds" placeholder="e.g., 1.6">
+                    </div>
+                </div>
+                
+                <h3 style="color: #10b981; margin-top: 20px;">Both Teams to Score (Optional)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>GG (Both Score):</label>
+                        <input type="number" step="0.01" id="ggOdds" placeholder="e.g., 1.8">
+                    </div>
+                    <div class="form-group">
+                        <label>NG (Not Both):</label>
+                        <input type="number" step="0.01" id="ngOdds" placeholder="e.g., 2.0">
+                    </div>
+                </div>
+                
+                <h3 style="color: #f59e0b; margin-top: 20px;">Over/Under Goals (Optional)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Over 1.5:</label>
+                        <input type="number" step="0.01" id="over15Odds" placeholder="e.g., 1.3">
+                    </div>
+                    <div class="form-group">
+                        <label>Under 1.5:</label>
+                        <input type="number" step="0.01" id="under15Odds" placeholder="e.g., 3.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Over 2.5:</label>
+                        <input type="number" step="0.01" id="over25Odds" placeholder="e.g., 2.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Under 2.5:</label>
+                        <input type="number" step="0.01" id="under25Odds" placeholder="e.g., 1.7">
+                    </div>
+                    <div class="form-group">
+                        <label>Over 3.5:</label>
+                        <input type="number" step="0.01" id="over35Odds" placeholder="e.g., 3.2">
+                    </div>
+                    <div class="form-group">
+                        <label>Under 3.5:</label>
+                        <input type="number" step="0.01" id="under35Odds" placeholder="e.g., 1.3">
+                    </div>
+                </div>
+                
+                <h3 style="color: #ec4899; margin-top: 20px;">Half Time/Full Time (Optional)</h3>
+                <p style="color: #94a3b8; font-size: 13px; margin-bottom: 10px;">Format: HT/FT (e.g., H/H = Home/Home)</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>H/H:</label>
+                        <input type="number" step="0.01" id="htftHH" placeholder="e.g., 3.5">
+                    </div>
+                    <div class="form-group">
+                        <label>H/D:</label>
+                        <input type="number" step="0.01" id="htftHD" placeholder="e.g., 6.0">
+                    </div>
+                    <div class="form-group">
+                        <label>H/A:</label>
+                        <input type="number" step="0.01" id="htftHA" placeholder="e.g., 15.0">
+                    </div>
+                    <div class="form-group">
+                        <label>D/H:</label>
+                        <input type="number" step="0.01" id="htftDH" placeholder="e.g., 5.5">
+                    </div>
+                    <div class="form-group">
+                        <label>D/D:</label>
+                        <input type="number" step="0.01" id="htftDD" placeholder="e.g., 8.0">
+                    </div>
+                    <div class="form-group">
+                        <label>D/A:</label>
+                        <input type="number" step="0.01" id="htftDA" placeholder="e.g., 12.0">
+                    </div>
+                    <div class="form-group">
+                        <label>A/H:</label>
+                        <input type="number" step="0.01" id="htftAH" placeholder="e.g., 20.0">
+                    </div>
+                    <div class="form-group">
+                        <label>A/D:</label>
+                        <input type="number" step="0.01" id="htftAD" placeholder="e.g., 10.0">
+                    </div>
+                    <div class="form-group">
+                        <label>A/A:</label>
+                        <input type="number" step="0.01" id="htftAA" placeholder="e.g., 4.5">
+                    </div>
+                </div>
+                
+                <h3 style="color: #06b6d4; margin-top: 20px;">Correct Score (Optional)</h3>
+                <p style="color: #94a3b8; font-size: 13px; margin-bottom: 10px;">Popular scorelines</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>1-0:</label>
+                        <input type="number" step="0.01" id="cs10" placeholder="e.g., 8.0">
+                    </div>
+                    <div class="form-group">
+                        <label>2-0:</label>
+                        <input type="number" step="0.01" id="cs20" placeholder="e.g., 12.0">
+                    </div>
+                    <div class="form-group">
+                        <label>2-1:</label>
+                        <input type="number" step="0.01" id="cs21" placeholder="e.g., 10.0">
+                    </div>
+                    <div class="form-group">
+                        <label>3-0:</label>
+                        <input type="number" step="0.01" id="cs30" placeholder="e.g., 18.0">
+                    </div>
+                    <div class="form-group">
+                        <label>3-1:</label>
+                        <input type="number" step="0.01" id="cs31" placeholder="e.g., 16.0">
+                    </div>
+                    <div class="form-group">
+                        <label>3-2:</label>
+                        <input type="number" step="0.01" id="cs32" placeholder="e.g., 20.0">
+                    </div>
+                    <div class="form-group">
+                        <label>0-0:</label>
+                        <input type="number" step="0.01" id="cs00" placeholder="e.g., 9.0">
+                    </div>
+                    <div class="form-group">
+                        <label>1-1:</label>
+                        <input type="number" step="0.01" id="cs11" placeholder="e.g., 7.0">
+                    </div>
+                    <div class="form-group">
+                        <label>2-2:</label>
+                        <input type="number" step="0.01" id="cs22" placeholder="e.g., 15.0">
+                    </div>
+                    <div class="form-group">
+                        <label>0-1:</label>
+                        <input type="number" step="0.01" id="cs01" placeholder="e.g., 10.0">
+                    </div>
+                    <div class="form-group">
+                        <label>0-2:</label>
+                        <input type="number" step="0.01" id="cs02" placeholder="e.g., 14.0">
+                    </div>
+                    <div class="form-group">
+                        <label>1-2:</label>
+                        <input type="number" step="0.01" id="cs12" placeholder="e.g., 11.0">
+                    </div>
+                    <div class="form-group">
+                        <label>0-3:</label>
+                        <input type="number" step="0.01" id="cs03" placeholder="e.g., 22.0">
+                    </div>
+                    <div class="form-group">
+                        <label>1-3:</label>
+                        <input type="number" step="0.01" id="cs13" placeholder="e.g., 18.0">
+                    </div>
+                    <div class="form-group">
+                        <label>2-3:</label>
+                        <input type="number" step="0.01" id="cs23" placeholder="e.g., 25.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Other:</label>
+                        <input type="number" step="0.01" id="csOther" placeholder="e.g., 30.0">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn-success" onclick="createMatch()">✅ Save Match</button>
+                    <button onclick="hideCreateForm()">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Matches Table -->
+            <h2>Current Matches (Total: <span id="matchCount">0</span>)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Match</th>
+                        <th>League</th>
+                        <th>Date</th>
+                        <th>Odds (H/D/A)</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="matchesTable">
+                    <tr><td colspan="8">Click "Refresh Matches" to load data</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+
+        function showMessage(msg, type = 'info') {
+            const box = document.getElementById('messageBox');
+            box.innerHTML = `<div class="message ${type}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = '', 5000);
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const msgBox = document.getElementById('loginMessage');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.access_token;
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    loadMatches();
+                } else {
+                    msgBox.innerHTML = `<div class="message error">${data.message || 'Login failed'}</div>`;
+                }
+            } catch (err) {
+                msgBox.innerHTML = `<div class="message error">Error: ${err.message}</div>`;
+            }
+        }
+
+        function logout() {
+            authToken = '';
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+        }
+
+        async function loadMatches() {
+            try {
+                const response = await fetch('/api/admin/matches?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+
+                const data = await response.json();
+                const tbody = document.getElementById('matchesTable');
+                const countSpan = document.getElementById('matchCount');
+
+                console.log('Matches loaded:', data);
+
+                if (!data.matches || data.matches.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: #f44336;">No matches found. Create your first match!</td></tr>';
+                    countSpan.textContent = '0';
+                    return;
+                }
+
+                countSpan.textContent = data.matches.length;
+
+                tbody.innerHTML = data.matches.map(m => `
+                    <tr>
+                        <td>${m.id}</td>
+                        <td><strong>${m.home_team}</strong> vs <strong>${m.away_team}</strong></td>
+                        <td>${m.league || 'N/A'}</td>
+                        <td>${new Date(m.match_date).toLocaleString()}</td>
+                        <td>${m.home_odds} / ${m.draw_odds} / ${m.away_odds}</td>
+                        <td><span style="color: ${m.status === 'scheduled' ? '#4CAF50' : '#FFA726'}">${m.status}</span></td>
+                        <td>${m.home_score || 0} - ${m.away_score || 0}</td>
+                        <td>
+                            <button class="btn-danger" onclick="deleteMatch(${m.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                showMessage(`✅ Loaded ${data.matches.length} matches successfully!`, 'success');
+            } catch (err) {
+                showMessage('Error loading matches: ' + err.message, 'error');
+            }
+        }
+
+        function showCreateForm() {
+            document.getElementById('createForm').classList.remove('hidden');
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('matchDate').value = tomorrow.toISOString().slice(0, 16);
+        }
+
+        function hideCreateForm() {
+            document.getElementById('createForm').classList.add('hidden');
+        }
+
+        async function createMatch() {
+            const matchData = {
+                home_team: document.getElementById('homeTeam').value,
+                away_team: document.getElementById('awayTeam').value,
+                league: document.getElementById('league').value,
+                match_date: document.getElementById('matchDate').value,
+                home_odds: parseFloat(document.getElementById('homeOdds').value),
+                draw_odds: parseFloat(document.getElementById('drawOdds').value),
+                away_odds: parseFloat(document.getElementById('awayOdds').value)
+            };
+            
+            // Add optional betting markets
+            const homeDrawOdds = document.getElementById('homeDrawOdds').value;
+            const homeAwayOdds = document.getElementById('homeAwayOdds').value;
+            const drawAwayOdds = document.getElementById('drawAwayOdds').value;
+            const ggOdds = document.getElementById('ggOdds').value;
+            const ngOdds = document.getElementById('ngOdds').value;
+            const over15Odds = document.getElementById('over15Odds').value;
+            const under15Odds = document.getElementById('under15Odds').value;
+            const over25Odds = document.getElementById('over25Odds').value;
+            const under25Odds = document.getElementById('under25Odds').value;
+            const over35Odds = document.getElementById('over35Odds').value;
+            const under35Odds = document.getElementById('under35Odds').value;
+            
+            if (homeDrawOdds) matchData.home_draw_odds = parseFloat(homeDrawOdds);
+            if (homeAwayOdds) matchData.home_away_odds = parseFloat(homeAwayOdds);
+            if (drawAwayOdds) matchData.draw_away_odds = parseFloat(drawAwayOdds);
+            if (ggOdds) matchData.gg_odds = parseFloat(ggOdds);
+            if (ngOdds) matchData.ng_odds = parseFloat(ngOdds);
+            if (over15Odds) matchData.over15_odds = parseFloat(over15Odds);
+            if (under15Odds) matchData.under15_odds = parseFloat(under15Odds);
+            if (over25Odds) matchData.over25_odds = parseFloat(over25Odds);
+            if (under25Odds) matchData.under25_odds = parseFloat(under25Odds);
+            if (over35Odds) matchData.over35_odds = parseFloat(over35Odds);
+            if (under35Odds) matchData.under35_odds = parseFloat(under35Odds);
+            
+            // Collect HT/FT odds
+            const htftOdds = {};
+            const htftHH = document.getElementById('htftHH').value;
+            const htftHD = document.getElementById('htftHD').value;
+            const htftHA = document.getElementById('htftHA').value;
+            const htftDH = document.getElementById('htftDH').value;
+            const htftDD = document.getElementById('htftDD').value;
+            const htftDA = document.getElementById('htftDA').value;
+            const htftAH = document.getElementById('htftAH').value;
+            const htftAD = document.getElementById('htftAD').value;
+            const htftAA = document.getElementById('htftAA').value;
+            
+            if (htftHH) htftOdds['HH'] = parseFloat(htftHH);
+            if (htftHD) htftOdds['HD'] = parseFloat(htftHD);
+            if (htftHA) htftOdds['HA'] = parseFloat(htftHA);
+            if (htftDH) htftOdds['DH'] = parseFloat(htftDH);
+            if (htftDD) htftOdds['DD'] = parseFloat(htftDD);
+            if (htftDA) htftOdds['DA'] = parseFloat(htftDA);
+            if (htftAH) htftOdds['AH'] = parseFloat(htftAH);
+            if (htftAD) htftOdds['AD'] = parseFloat(htftAD);
+            if (htftAA) htftOdds['AA'] = parseFloat(htftAA);
+            
+            if (Object.keys(htftOdds).length > 0) {
+                matchData.htft_odds = JSON.stringify(htftOdds);
+            }
+            
+            // Collect Correct Score odds
+            const csOdds = {};
+            const cs10 = document.getElementById('cs10').value;
+            const cs20 = document.getElementById('cs20').value;
+            const cs21 = document.getElementById('cs21').value;
+            const cs30 = document.getElementById('cs30').value;
+            const cs31 = document.getElementById('cs31').value;
+            const cs32 = document.getElementById('cs32').value;
+            const cs00 = document.getElementById('cs00').value;
+            const cs11 = document.getElementById('cs11').value;
+            const cs22 = document.getElementById('cs22').value;
+            const cs01 = document.getElementById('cs01').value;
+            const cs02 = document.getElementById('cs02').value;
+            const cs12 = document.getElementById('cs12').value;
+            const cs03 = document.getElementById('cs03').value;
+            const cs13 = document.getElementById('cs13').value;
+            const cs23 = document.getElementById('cs23').value;
+            const csOther = document.getElementById('csOther').value;
+            
+            if (cs10) csOdds['1-0'] = parseFloat(cs10);
+            if (cs20) csOdds['2-0'] = parseFloat(cs20);
+            if (cs21) csOdds['2-1'] = parseFloat(cs21);
+            if (cs30) csOdds['3-0'] = parseFloat(cs30);
+            if (cs31) csOdds['3-1'] = parseFloat(cs31);
+            if (cs32) csOdds['3-2'] = parseFloat(cs32);
+            if (cs00) csOdds['0-0'] = parseFloat(cs00);
+            if (cs11) csOdds['1-1'] = parseFloat(cs11);
+            if (cs22) csOdds['2-2'] = parseFloat(cs22);
+            if (cs01) csOdds['0-1'] = parseFloat(cs01);
+            if (cs02) csOdds['0-2'] = parseFloat(cs02);
+            if (cs12) csOdds['1-2'] = parseFloat(cs12);
+            if (cs03) csOdds['0-3'] = parseFloat(cs03);
+            if (cs13) csOdds['1-3'] = parseFloat(cs13);
+            if (cs23) csOdds['2-3'] = parseFloat(cs23);
+            if (csOther) csOdds['Other'] = parseFloat(csOther);
+            
+            if (Object.keys(csOdds).length > 0) {
+                matchData.correct_score_odds = JSON.stringify(csOdds);
+            }
+
+            // Validate required fields
+            if (!matchData.home_team || !matchData.away_team || !matchData.match_date || 
+                !matchData.home_odds || !matchData.draw_odds || !matchData.away_odds) {
+                showMessage('Please fill all required fields!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/matches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify(matchData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('✅ Match created successfully!', 'success');
+                    hideCreateForm();
+                    // Clear form
+                    document.querySelectorAll('#createForm input[type="text"], #createForm input[type="number"]').forEach(input => input.value = '');
+                    // Reload matches
+                    setTimeout(() => loadMatches(), 500);
+                } else {
+                    showMessage('Error: ' + (data.message || 'Failed to create match'), 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+
+        async function deleteMatch(id) {
+            if (!confirm('Are you sure you want to delete this match?')) return;
+
+            try {
+                const response = await fetch('/api/admin/matches/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+
+                if (response.ok) {
+                    showMessage('✅ Match deleted successfully!', 'success');
+                    loadMatches();
+                } else {
+                    const data = await response.json();
+                    showMessage('Error: ' + (data.message || 'Failed to delete'), 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+/* Dashboard page styles */
+.dashboard-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.dashboard-card {
+  background: #f4f4f4;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}

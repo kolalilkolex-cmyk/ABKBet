@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Bookings - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #334155;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .match-selector {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .match-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .match-card:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .match-card.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .match-teams {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .match-league {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .market-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .market-option {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .market-option:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .market-option.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .market-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .market-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .odds-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .selections-summary {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .selection-item {
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-selection {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .booking-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .booking-item {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .booking-code {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .booking-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fas fa-crown"></i>
+            Premium Booking Management
+        </h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('create')">
+                <i class="fas fa-plus-circle"></i> Create New
+            </button>
+            <button class="tab" onclick="switchTab('manage')">
+                <i class="fas fa-list"></i> Manage Bookings
+            </button>
+        </div>
+
+        <!-- CREATE TAB -->
+        <div id="create-tab" class="tab-content active">
+            <div class="card">
+                <h2 style="margin-bottom: 20px;"><i class="fas fa-futbol"></i> Select Matches & Markets</h2>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Filter by League (Optional)</label>
+                        <select id="leagueFilter" onchange="filterByLeague()" style="margin-bottom: 0;">
+                            <option value="">All Leagues</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="fetchMatchesFromAPI()" style="padding: 12px 24px;">
+                            <i class="fas fa-sync-alt"></i> Fetch Matches from API
+                        </button>
+                    </div>
+                </div>
+
+                <div id="matchList" class="match-selector">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Loading matches...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="summaryCard" style="display: none;">
+                <h2 style="margin-bottom: 20px;"><i class="fas fa-clipboard-check"></i> Booking Summary</h2>
+                
+                <div id="selectionsList" class="selections-summary">
+                    <!-- Selections will be added here -->
+                </div>
+
+                <div class="form-group">
+                    <label>Total Odds: <span id="totalOdds" style="color: #10b981; font-size: 20px;">1.00</span></label>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price (USD)</label>
+                    <input type="number" id="price" value="250" step="50" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" placeholder="VIP picks, Premium analysis, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="expiresHours">Expires After (Hours)</label>
+                    <input type="number" id="expiresHours" value="24" min="1" max="168">
+                </div>
+
+                <button class="btn btn-success" onclick="createPremiumBooking()">
+                    <i class="fas fa-check-circle"></i> Create Premium Booking
+                </button>
+            </div>
+        </div>
+
+        <!-- MANAGE TAB -->
+        <div id="manage-tab" class="tab-content">
+            <div class="card">
+                <div id="bookingsList" class="booking-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Loading bookings...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/abkbet-client.js"></script>
+    <script>
+        const client = new ABKBetClient();
+        let allMatches = [];
+        let selectedPicks = [];
+
+        // Check if user is logged in
+        if (!client.isLoggedIn()) {
+            alert('You must be logged in as admin to access this page');
+            window.location.href = '/admin';
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            if (tabName === 'manage') {
+                loadBookings();
+            }
+        }
+
+        // Load matches
+        async function loadMatches() {
+            try {
+                const data = await client.request('/admin/matches', 'GET');
+                console.log('Matches response:', data);
+                allMatches = data.matches || [];
+                console.log('Total matches:', allMatches.length);
+                
+                if (allMatches.length === 0) {
+                    document.getElementById('matchList').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-futbol" style="font-size: 64px; opacity: 0.3; margin-bottom: 20px; display: block;"></i>
+                            <h3 style="margin-bottom: 10px; color: #cbd5e1;">No Matches Available</h3>
+                            <p style="margin-bottom: 20px;">Click the button above to fetch matches from the Football API</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Extract unique leagues
+                const leagues = [...new Set(allMatches.map(m => m.league || 'Unknown').filter(Boolean))];
+                const leagueFilter = document.getElementById('leagueFilter');
+                leagueFilter.innerHTML = '<option value="">All Leagues</option>' + 
+                    leagues.sort().map(league => `<option value="${league}">${league}</option>`).join('');
+                
+                displayMatches(allMatches);
+            } catch (error) {
+                console.error('Error loading matches:', error);
+                document.getElementById('matchList').innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading matches: ${error.message}<br>
+                        <small>Please make sure you're logged in as admin. <a href="/admin" style="color: #3b82f6;">Go to Admin Login</a></small>
+                    </div>
+                `;
+            }
+        }
+
+        async function fetchMatchesFromAPI() {
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+            
+            try {
+                // Call the admin endpoint to fetch matches from football API
+                const result = await client.request('/admin/fetch-matches', 'POST');
+                
+                // Reload matches
+                await loadMatches();
+                
+                alert(result.message || 'Matches fetched successfully!');
+            } catch (error) {
+                // Show helpful error message
+                const errorMsg = error.message || 'Unknown error';
+                if (errorMsg.includes('API key not configured')) {
+                    alert('Football API is not configured.\n\nTo use the API:\n1. Go to api-football.com and get an API key\n2. Set FOOTBALL_API_KEY environment variable\n\nFor now, you can:\n1. Create manual matches in the admin panel\n2. Or wait for matches to be loaded on the main site');
+                } else if (errorMsg.includes('No matches available')) {
+                    alert('No matches available from API.\n\nAlternatives:\n1. Create manual matches in the admin panel under "Manual Matches"\n2. Make sure the football API is properly configured');
+                } else {
+                    alert('Error fetching matches: ' + errorMsg);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        function filterByLeague() {
+            const selectedLeague = document.getElementById('leagueFilter').value;
+            if (!selectedLeague) {
+                displayMatches(allMatches);
+            } else {
+                const filtered = allMatches.filter(m => m.league === selectedLeague);
+                displayMatches(filtered);
+            }
+        }
+
+        function displayMatches(matches) {
+            const matchList = document.getElementById('matchList');
+            
+            if (matches.length === 0) {
+                matchList.innerHTML = '<p style="text-align: center; color: #94a3b8;">No matches available</p>';
+                return;
+            }
+
+            // Sort by match date (nearest first)
+            matches.sort((a, b) => new Date(a.match_date) - new Date(b.match_date));
+
+            matchList.innerHTML = matches.map(match => {
+                const matchTime = new Date(match.match_date);
+                const timeStr = matchTime.toLocaleString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                return `
+                <div class="match-card" data-match-id="${match.id}">
+                    <div class="match-header">
+                        <div>
+                            <div class="match-teams">${match.home_team} vs ${match.away_team}</div>
+                            <div class="match-league">
+                                <i class="fas fa-trophy"></i> ${match.league || 'Unknown League'}
+                            </div>
+                            <div style="color: #64748b; font-size: 11px; margin-top: 3px;">
+                                <i class="fas fa-clock"></i> ${timeStr}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="market-options">
+                        ${generateMarketOptions(match)}
+                    </div>
+                </div>
+            `}).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.market-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleSelection(option);
+                });
+            });
+        }
+
+        function generateMarketOptions(match) {
+            const markets = [];
+            
+            // Parse JSON odds if they exist
+            const csOdds = match.correct_score_odds ? JSON.parse(match.correct_score_odds) : {};
+            const htftOdds = match.htft_odds ? JSON.parse(match.htft_odds) : {};
+            
+            // Match Result - Home
+            if (match.home_odds) {
+                markets.push(`
+                    <div class="market-option" 
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Match Result"
+                         data-selection="${match.home_team}"
+                         data-odds="${match.home_odds}">
+                        <div class="market-label">${match.home_team}</div>
+                        <div class="market-value">${match.home_odds}</div>
+                    </div>
+                `);
+            }
+            
+            // Match Result - Draw
+            if (match.draw_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Match Result"
+                         data-selection="Draw"
+                         data-odds="${match.draw_odds}">
+                        <div class="market-label">Draw</div>
+                        <div class="market-value">${match.draw_odds}</div>
+                    </div>
+                `);
+            }
+            
+            // Match Result - Away
+            if (match.away_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Match Result"
+                         data-selection="${match.away_team}"
+                         data-odds="${match.away_odds}">
+                        <div class="market-label">${match.away_team}</div>
+                        <div class="market-value">${match.away_odds}</div>
+                    </div>
+                `);
+            }
+            
+            // Over/Under 2.5
+            if (match.over_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Over/Under 2.5"
+                         data-selection="Over 2.5"
+                         data-odds="${match.over_odds}">
+                        <div class="market-label">Over 2.5</div>
+                        <div class="market-value">${match.over_odds}</div>
+                    </div>
+                `);
+            }
+            
+            if (match.under_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Over/Under 2.5"
+                         data-selection="Under 2.5"
+                         data-odds="${match.under_odds}">
+                        <div class="market-label">Under 2.5</div>
+                        <div class="market-value">${match.under_odds}</div>
+                    </div>
+                `);
+            }
+            
+            // Both Teams to Score
+            if (match.btts_yes_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Both Teams to Score"
+                         data-selection="Yes"
+                         data-odds="${match.btts_yes_odds}">
+                        <div class="market-label">BTTS Yes</div>
+                        <div class="market-value">${match.btts_yes_odds}</div>
+                    </div>
+                `);
+            }
+            
+            if (match.btts_no_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Both Teams to Score"
+                         data-selection="No"
+                         data-odds="${match.btts_no_odds}">
+                        <div class="market-label">BTTS No</div>
+                        <div class="market-value">${match.btts_no_odds}</div>
+                    </div>
+                `);
+            }
+            
+            // Double Chance
+            if (match.home_draw_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Double Chance"
+                         data-selection="1X"
+                         data-odds="${match.home_draw_odds}">
+                        <div class="market-label">DC 1X</div>
+                        <div class="market-value">${match.home_draw_odds}</div>
+                    </div>
+                `);
+            }
+            
+            if (match.draw_away_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Double Chance"
+                         data-selection="X2"
+                         data-odds="${match.draw_away_odds}">
+                        <div class="market-label">DC X2</div>
+                        <div class="market-value">${match.draw_away_odds}</div>
+                    </div>
+                `);
+            }
+            
+            if (match.home_away_odds) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Double Chance"
+                         data-selection="12"
+                         data-odds="${match.home_away_odds}">
+                        <div class="market-label">DC 12</div>
+                        <div class="market-value">${match.home_away_odds}</div>
+                    </div>
+                `);
+            }
+            
+            // Correct Score
+            if (csOdds['1-0']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="1-0"
+                         data-odds="${csOdds['1-0']}">
+                        <div class="market-label">CS 1-0</div>
+                        <div class="market-value">${csOdds['1-0']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['2-0']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="2-0"
+                         data-odds="${csOdds['2-0']}">
+                        <div class="market-label">CS 2-0</div>
+                        <div class="market-value">${csOdds['2-0']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['2-1']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="2-1"
+                         data-odds="${csOdds['2-1']}">
+                        <div class="market-label">CS 2-1</div>
+                        <div class="market-value">${csOdds['2-1']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['0-1']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="0-1"
+                         data-odds="${csOdds['0-1']}">
+                        <div class="market-label">CS 0-1</div>
+                        <div class="market-value">${csOdds['0-1']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['0-2']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="0-2"
+                         data-odds="${csOdds['0-2']}">
+                        <div class="market-label">CS 0-2</div>
+                        <div class="market-value">${csOdds['0-2']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['1-2']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="1-2"
+                         data-odds="${csOdds['1-2']}">
+                        <div class="market-label">CS 1-2</div>
+                        <div class="market-value">${csOdds['1-2']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['1-1']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="1-1"
+                         data-odds="${csOdds['1-1']}">
+                        <div class="market-label">CS 1-1</div>
+                        <div class="market-value">${csOdds['1-1']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['2-2']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="2-2"
+                         data-odds="${csOdds['2-2']}">
+                        <div class="market-label">CS 2-2</div>
+                        <div class="market-value">${csOdds['2-2']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['0-0']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="0-0"
+                         data-odds="${csOdds['0-0']}">
+                        <div class="market-label">CS 0-0</div>
+                        <div class="market-value">${csOdds['0-0']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['3-0']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="3-0"
+                         data-odds="${csOdds['3-0']}">
+                        <div class="market-label">CS 3-0</div>
+                        <div class="market-value">${csOdds['3-0']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['3-1']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="3-1"
+                         data-odds="${csOdds['3-1']}">
+                        <div class="market-label">CS 3-1</div>
+                        <div class="market-value">${csOdds['3-1']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['0-3']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="0-3"
+                         data-odds="${csOdds['0-3']}">
+                        <div class="market-label">CS 0-3</div>
+                        <div class="market-value">${csOdds['0-3']}</div>
+                    </div>
+                `);
+            }
+            
+            if (csOdds['1-3']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Correct Score"
+                         data-selection="1-3"
+                         data-odds="${csOdds['1-3']}">
+                        <div class="market-label">CS 1-3</div>
+                        <div class="market-value">${csOdds['1-3']}</div>
+                    </div>
+                `);
+            }
+            
+            // Half Time/Full Time
+            if (htftOdds['HH']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Half Time/Full Time"
+                         data-selection="Home/Home"
+                         data-odds="${htftOdds['HH']}">
+                        <div class="market-label">HT/FT H/H</div>
+                        <div class="market-value">${htftOdds['HH']}</div>
+                    </div>
+                `);
+            }
+            
+            if (htftOdds['AA']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Half Time/Full Time"
+                         data-selection="Away/Away"
+                         data-odds="${htftOdds['AA']}">
+                        <div class="market-label">HT/FT A/A</div>
+                        <div class="market-value">${htftOdds['AA']}</div>
+                    </div>
+                `);
+            }
+            
+            if (htftOdds['DD']) {
+                markets.push(`
+                    <div class="market-option"
+                         data-match-id="${match.id}"
+                         data-match="${match.home_team} vs ${match.away_team}"
+                         data-market="Half Time/Full Time"
+                         data-selection="Draw/Draw"
+                         data-odds="${htftOdds['DD']}">
+                        <div class="market-label">HT/FT D/D</div>
+                        <div class="market-value">${htftOdds['DD']}</div>
+                    </div>
+                `);
+            }
+            
+            return markets.join('');
+        }
+
+        function toggleSelection(element) {
+            const data = element.dataset;
+            const pickKey = `${data.matchId}-${data.market}-${data.selection}`;
+            
+            const existingIndex = selectedPicks.findIndex(p => 
+                `${p.match_id}-${p.market}-${p.selection}` === pickKey
+            );
+            
+            if (existingIndex >= 0) {
+                // Remove selection
+                selectedPicks.splice(existingIndex, 1);
+                element.classList.remove('selected');
+            } else {
+                // Add selection
+                selectedPicks.push({
+                    match_id: parseInt(data.matchId),
+                    match: data.match,
+                    market: data.market,
+                    selection: data.selection,
+                    odds: parseFloat(data.odds)
+                });
+                element.classList.add('selected');
+            }
+            
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summaryCard = document.getElementById('summaryCard');
+            const selectionsList = document.getElementById('selectionsList');
+            const totalOddsEl = document.getElementById('totalOdds');
+            
+            if (selectedPicks.length === 0) {
+                summaryCard.style.display = 'none';
+                return;
+            }
+            
+            summaryCard.style.display = 'block';
+            
+            // Calculate total odds
+            const totalOdds = selectedPicks.reduce((acc, pick) => acc * pick.odds, 1.0);
+            totalOddsEl.textContent = totalOdds.toFixed(2);
+            
+            // Display selections
+            selectionsList.innerHTML = `
+                <h3 style="margin-bottom: 15px;">Selected Picks (${selectedPicks.length})</h3>
+                ${selectedPicks.map((pick, index) => `
+                    <div class="selection-item">
+                        <div>
+                            <strong>${pick.match}</strong><br>
+                            <small style="color: #94a3b8;">${pick.market}: ${pick.selection} @ ${pick.odds}</small>
+                        </div>
+                        <button class="remove-selection" onclick="removePick(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function removePick(index) {
+            selectedPicks.splice(index, 1);
+            
+            // Update UI - remove selected class from all options and re-apply for remaining picks
+            document.querySelectorAll('.market-option.selected').forEach(el => el.classList.remove('selected'));
+            
+            selectedPicks.forEach(pick => {
+                const selector = `[data-match-id="${pick.match_id}"][data-market="${pick.market}"][data-selection="${pick.selection}"]`;
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.classList.add('selected');
+                }
+            });
+            
+            updateSummary();
+        }
+
+        async function createPremiumBooking() {
+            if (selectedPicks.length === 0) {
+                alert('Please select at least one pick');
+                return;
+            }
+            
+            const price = parseFloat(document.getElementById('price').value);
+            const description = document.getElementById('description').value;
+            const expiresHours = parseInt(document.getElementById('expiresHours').value);
+            
+            try {
+                const result = await client.request('/premium/admin/create-booking', 'POST', {
+                    selections: selectedPicks,
+                    price_usd: price,
+                    description: description,
+                    expires_hours: expiresHours
+                });
+                
+                alert(`Premium booking created!\n\nCode: ${result.booking.booking_code}\n\nShare this code with users to purchase for $${price}`);
+                
+                // Reset form
+                selectedPicks = [];
+                document.getElementById('description').value = '';
+                document.getElementById('price').value = '250';
+                document.querySelectorAll('.market-option.selected').forEach(el => el.classList.remove('selected'));
+                updateSummary();
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function loadBookings() {
+            const bookingsList = document.getElementById('bookingsList');
+            
+            try {
+                const data = await client.request('/premium/admin/bookings', 'GET');
+                const bookings = data.bookings || [];
+                
+                if (bookings.length === 0) {
+                    bookingsList.innerHTML = '<p style="text-align: center; color: #94a3b8;">No premium bookings created yet</p>';
+                    return;
+                }
+                
+                bookingsList.innerHTML = bookings.map(booking => `
+                    <div class="booking-item">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div>
+                                <div class="booking-code">${booking.booking_code}</div>
+                                ${booking.description ? `<p style="color: #94a3b8; margin-top: 5px;">${booking.description}</p>` : ''}
+                            </div>
+                            <button class="btn btn-danger" onclick="cancelBooking(${booking.id})">
+                                <i class="fas fa-ban"></i> Cancel
+                            </button>
+                        </div>
+                        
+                        <div class="booking-stats">
+                            <div class="stat-box">
+                                <div class="stat-label">Selections</div>
+                                <div class="stat-value">${booking.num_selections}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Total Odds</div>
+                                <div class="stat-value">${booking.total_odds}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Price</div>
+                                <div class="stat-value">$${booking.price_usd}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Purchases</div>
+                                <div class="stat-value">${booking.purchases_count}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Revenue</div>
+                                <div class="stat-value">$${booking.revenue}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Status</div>
+                                <div class="stat-value" style="color: ${booking.status === 'active' ? '#10b981' : '#ef4444'}">${booking.status.toUpperCase()}</div>
+                            </div>
+                        </div>
+                        
+                        ${booking.expires_at ? `
+                            <p style="color: #f59e0b; margin-top: 10px; font-size: 12px;">
+                                <i class="fas fa-clock"></i> Expires: ${new Date(booking.expires_at).toLocaleString()}
+                            </p>
+                        ` : ''}
+                        
+                        <details style="margin-top: 15px;">
+                            <summary style="cursor: pointer; color: #3b82f6; font-weight: 600;">View Selections</summary>
+                            <div style="margin-top: 10px;">
+                                ${booking.selections.map(sel => `
+                                    <div style="background: rgba(15, 23, 42, 0.5); padding: 10px; border-radius: 6px; margin-top: 8px;">
+                                        <strong>${sel.match}</strong><br>
+                                        <small style="color: #94a3b8;">${sel.market}: ${sel.selection} @ ${sel.odds}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                bookingsList.innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading bookings: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Cancel this premium booking?')) return;
+            
+            try {
+                await client.request(`/premium/admin/booking/${bookingId}`, 'DELETE');
+                alert('Booking cancelled');
+                loadBookings();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Initialize
+        loadMatches();
+    </script>
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Games Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .quick-setup {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quick-setup h2 {
+            margin-bottom: 15px;
+        }
+
+        .quick-setup button {
+            background: white;
+            color: #f5576c;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .quick-setup button:hover {
+            transform: scale(1.05);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .section h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .leagues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .league-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .league-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .league-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .league-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .league-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .games-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .games-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .games-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .games-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-scheduled {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-live {
+            background: #ffebee;
+            color: #c62828;
+            animation: pulse 2s infinite;
+        }
+
+        .status-finished {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .game-controls button {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #667eea;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '⚽';
+            font-size: 3em;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ Virtual Games Admin Panel</h1>
+            <p>Manage virtual leagues, teams, and games</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="switchTab('leagues')">Leagues</button>
+            <button class="tab" onclick="switchTab('teams')">Teams</button>
+            <button class="tab" onclick="switchTab('games')">Games</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="quick-setup">
+                <h2>🚀 Quick Setup</h2>
+                <p>Create 3 leagues with teams and schedule games automatically</p>
+                <button onclick="quickSetup()">Run Quick Setup</button>
+            </div>
+            
+            <div class="quick-setup" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color: #f87171;">
+                <h2>🔄 Reset All Leagues</h2>
+                <p>Clear all finished games and reset all leagues to Matchday 1</p>
+                <button onclick="resetAllLeagues()" style="background: white; color: #dc2626;">Reset to MD1</button>
+            </div>
+
+            <div class="section">
+                <h3>📊 Live Games</h3>
+                <div id="live-games-list">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leagues Tab -->
+        <div id="leagues" class="tab-content">
+            <div class="section">
+                <h3>Create New League</h3>
+                <form id="create-league-form">
+                    <div class="form-group">
+                        <label>League Name *</label>
+                        <input type="text" id="league-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="league-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Game Duration (seconds)</label>
+                        <input type="number" id="league-duration" value="180">
+                    </div>
+                    <div class="form-group">
+                        <label>Games Per Day</label>
+                        <input type="number" id="league-games-per-day" value="48">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create League</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>All Leagues</h3>
+                <div id="leagues-list" class="leagues-grid">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Tab -->
+        <div id="teams" class="tab-content">
+            <div class="section">
+                <h3>Add New Team</h3>
+                <form id="create-team-form">
+                    <div class="form-group">
+                        <label>Select League *</label>
+                        <select id="team-league-id" required>
+                            <option value="">-- Select League --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Team Name *</label>
+                        <input type="text" id="team-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Team Rating (0-100)</label>
+                        <input type="number" id="team-rating" value="75" min="0" max="100">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Team</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>Teams by League</h3>
+                <div class="form-group">
+                    <select id="teams-filter-league" onchange="loadTeams()">
+                        <option value="">-- Select League --</option>
+                    </select>
+                </div>
+                <div id="teams-list">
+                    <p style="color: #999;">Select a league to view teams</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Tab -->
+        <div id="games" class="tab-content">
+            <div class="section">
+                <h3>Schedule Games</h3>
+                <form id="schedule-games-form">
+                    <div class="form-group">
+                        <label>Select League *</label>
+                        <select id="schedule-league-id" required>
+                            <option value="">-- Select League --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Games</label>
+                        <input type="number" id="schedule-num-games" value="10" min="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Schedule Games</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>Game Management</h3>
+                <div class="form-group">
+                    <select id="games-filter-league" onchange="loadGames()">
+                        <option value="">-- All Leagues --</option>
+                    </select>
+                    <select id="games-filter-status" onchange="loadGames()">
+                        <option value="scheduled">Scheduled</option>
+                        <option value="live">Live</option>
+                        <option value="finished">Finished</option>
+                    </select>
+                </div>
+                <div id="games-list">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Update Modal -->
+    <div id="score-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Game Score</h3>
+                <button class="close-btn" onclick="closeScoreModal()">&times;</button>
+            </div>
+            <form id="update-score-form">
+                <input type="hidden" id="score-game-id">
+                <div class="form-group">
+                    <label>Home Score</label>
+                    <input type="number" id="score-home" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Away Score</label>
+                    <input type="number" id="score-away" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Current Minute (0-90)</label>
+                    <input type="number" id="score-minute" min="0" max="90" value="0">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Score</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/virtual';
+        const token = localStorage.getItem('token');
+
+        // Check if admin is logged in
+        if (!token) {
+            alert('Please login as admin first');
+            window.location.href = '/admin-login.html';
+        }
+
+        // API Helper
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(API_URL + endpoint, options);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'API call failed');
+            }
+            
+            return data;
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // Load data when switching tabs
+            if (tabName === 'dashboard') loadLiveGames();
+            if (tabName === 'leagues') loadLeagues();
+            if (tabName === 'teams') loadLeaguesForDropdown();
+            if (tabName === 'games') loadGamesTab();
+        }
+
+        // Quick Setup
+        async function quickSetup() {
+            if (!confirm('This will create 3 leagues with teams and schedule games. Continue?')) return;
+            
+            try {
+                const result = await apiCall('/admin/quick-setup', 'POST', {});
+                alert('Quick setup completed! ' + result.leagues.length + ' leagues created.');
+                loadLeagues();
+                loadLiveGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Reset All Leagues to MD1
+        async function resetAllLeagues() {
+            if (!confirm('⚠️ WARNING: This will DELETE all finished games and reset all leagues to Matchday 1. This cannot be undone! Continue?')) return;
+            
+            try {
+                const result = await apiCall('/admin/reset-all-leagues', 'POST', {});
+                alert('✅ ' + result.message);
+                loadLiveGames();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        // Load Live Games
+        async function loadLiveGames() {
+            const container = document.getElementById('live-games-list');
+            
+            try {
+                const result = await apiCall('/games/live');
+                const games = result.games;
+                
+                if (games.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">No live games at the moment</p>';
+                    return;
+                }
+                
+                container.innerHTML = '<table class="games-table"><thead><tr><th>League</th><th>Match</th><th>Score</th><th>Minute</th><th>Actions</th></tr></thead><tbody>' +
+                    games.map(game => `
+                        <tr>
+                            <td>${game.league_name}</td>
+                            <td>${game.home_team.name} vs ${game.away_team.name}</td>
+                            <td><strong>${game.home_score} - ${game.away_score}</strong></td>
+                            <td>${game.current_minute}'</td>
+                            <td class="game-controls">
+                                <button class="btn btn-warning" onclick="openScoreModal(${game.id})">Update</button>
+                                <button class="btn btn-success" onclick="finishGame(${game.id})">Finish</button>
+                            </td>
+                        </tr>
+                    `).join('') +
+                    '</tbody></table>';
+            } catch (error) {
+                container.innerHTML = '<p style="color: red;">Error loading live games</p>';
+            }
+        }
+
+        // Load Leagues
+        async function loadLeagues() {
+            const container = document.getElementById('leagues-list');
+            
+            try {
+                const result = await apiCall('/admin/leagues');
+                const leagues = result.leagues;
+                
+                container.innerHTML = leagues.map(league => `
+                    <div class="league-card">
+                        <h4>${league.name}</h4>
+                        <p>${league.description || 'No description'}</p>
+                        <p><strong>Teams:</strong> ${league.team_count} | <strong>Duration:</strong> ${league.game_duration_seconds}s</p>
+                        <p><strong>Status:</strong> ${league.is_active ? '✅ Active' : '❌ Inactive'}</p>
+                        <div class="league-actions">
+                            <button class="btn btn-primary" onclick="scheduleGamesFor(${league.id})">Schedule Games</button>
+                            <button class="btn btn-danger" onclick="deleteLeague(${league.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = '<p style="color: red;">Error loading leagues</p>';
+            }
+        }
+
+        // Load Leagues for Dropdown
+        async function loadLeaguesForDropdown() {
+            try {
+                const result = await apiCall('/admin/leagues');
+                const leagues = result.leagues;
+                
+                const dropdowns = ['team-league-id', 'schedule-league-id', 'teams-filter-league', 'games-filter-league'];
+                dropdowns.forEach(id => {
+                    const select = document.getElementById(id);
+                    if (select) {
+                        const currentValue = select.value;
+                        select.innerHTML = '<option value="">-- Select League --</option>' +
+                            leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                        select.value = currentValue;
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading leagues:', error);
+            }
+        }
+
+        // Load Teams
+        async function loadTeams() {
+            const leagueId = document.getElementById('teams-filter-league').value;
+            const container = document.getElementById('teams-list');
+            
+            if (!leagueId) {
+                container.innerHTML = '<p style="color: #999;">Select a league to view teams</p>';
+                return;
+            }
+            
+            try {
+                const result = await apiCall(`/admin/leagues/${leagueId}/teams`);
+                const teams = result.teams;
+                
+                if (teams.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">No teams in this league yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = '<table class="games-table"><thead><tr><th>Team Name</th><th>Rating</th><th>Actions</th></tr></thead><tbody>' +
+                    teams.map(team => `
+                        <tr>
+                            <td>${team.name}</td>
+                            <td>${team.rating}</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="deleteTeam(${team.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('') +
+                    '</tbody></table>';
+            } catch (error) {
+                container.innerHTML = '<p style="color: red;">Error loading teams</p>';
+            }
+        }
+
+        // Load Games
+        async function loadGames() {
+            const leagueId = document.getElementById('games-filter-league').value;
+            const status = document.getElementById('games-filter-status').value;
+            const container = document.getElementById('games-list');
+            
+            try {
+                let endpoint = `/games/live`;
+                if (leagueId) {
+                    endpoint = `/leagues/${leagueId}/games?status=${status}`;
+                }
+                
+                const result = await apiCall(endpoint);
+                const games = result.games;
+                
+                if (games.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">No games found</p>';
+                    return;
+                }
+                
+                container.innerHTML = '<table class="games-table"><thead><tr><th>League</th><th>Match</th><th>Time</th><th>Score</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+                    games.map(game => `
+                        <tr>
+                            <td>${game.league_name}</td>
+                            <td>${game.home_team.name} vs ${game.away_team.name}</td>
+                            <td>${new Date(game.scheduled_start).toLocaleString()}</td>
+                            <td>${game.home_score || 0} - ${game.away_score || 0}</td>
+                            <td><span class="status-badge status-${game.status}">${game.status}</span></td>
+                            <td class="game-controls">
+                                ${game.status === 'scheduled' ? `<button class="btn btn-success" onclick="startGame(${game.id})">Start</button>` : ''}
+                                ${game.status === 'scheduled' ? `<button class="btn btn-warning" onclick="simulateGame(${game.id})">Simulate</button>` : ''}
+                                ${game.status === 'live' ? `<button class="btn btn-warning" onclick="openScoreModal(${game.id})">Update</button>` : ''}
+                                ${game.status === 'live' ? `<button class="btn btn-success" onclick="finishGame(${game.id})">Finish</button>` : ''}
+                                <button class="btn btn-danger" onclick="deleteGame(${game.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('') +
+                    '</tbody></table>';
+            } catch (error) {
+                container.innerHTML = '<p style="color: red;">Error loading games</p>';
+            }
+        }
+
+        function loadGamesTab() {
+            loadLeaguesForDropdown();
+            loadGames();
+        }
+
+        // Create League
+        document.getElementById('create-league-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                await apiCall('/admin/leagues', 'POST', {
+                    name: document.getElementById('league-name').value,
+                    description: document.getElementById('league-description').value,
+                    game_duration: parseInt(document.getElementById('league-duration').value),
+                    games_per_day: parseInt(document.getElementById('league-games-per-day').value)
+                });
+                
+                alert('League created successfully!');
+                e.target.reset();
+                loadLeagues();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Create Team
+        document.getElementById('create-team-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const leagueId = document.getElementById('team-league-id').value;
+            
+            try {
+                await apiCall(`/admin/leagues/${leagueId}/teams`, 'POST', {
+                    name: document.getElementById('team-name').value,
+                    rating: parseInt(document.getElementById('team-rating').value)
+                });
+                
+                alert('Team created successfully!');
+                e.target.reset();
+                loadTeams();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Schedule Games
+        document.getElementById('schedule-games-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const leagueId = document.getElementById('schedule-league-id').value;
+            const numGames = document.getElementById('schedule-num-games').value;
+            
+            try {
+                await apiCall(`/admin/leagues/${leagueId}/schedule-games`, 'POST', {
+                    num_games: parseInt(numGames)
+                });
+                
+                alert('Games scheduled successfully!');
+                loadGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Game Actions
+        async function startGame(gameId) {
+            try {
+                await apiCall(`/admin/games/${gameId}/start`, 'POST');
+                alert('Game started!');
+                loadGames();
+                loadLiveGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function simulateGame(gameId) {
+            if (!confirm('This will auto-simulate the game result. Continue?')) return;
+            
+            try {
+                await apiCall(`/admin/games/${gameId}/simulate`, 'POST');
+                alert('Game simulated and finished!');
+                loadGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function finishGame(gameId) {
+            if (!confirm('Finish this game and settle all bets?')) return;
+            
+            try {
+                await apiCall(`/admin/games/${gameId}/finish`, 'POST');
+                alert('Game finished and bets settled!');
+                loadGames();
+                loadLiveGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function openScoreModal(gameId) {
+            document.getElementById('score-game-id').value = gameId;
+            document.getElementById('score-modal').classList.add('active');
+        }
+
+        function closeScoreModal() {
+            document.getElementById('score-modal').classList.remove('active');
+            document.getElementById('update-score-form').reset();
+        }
+
+        document.getElementById('update-score-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const gameId = document.getElementById('score-game-id').value;
+            
+            try {
+                await apiCall(`/admin/games/${gameId}/update-score`, 'POST', {
+                    home_score: parseInt(document.getElementById('score-home').value),
+                    away_score: parseInt(document.getElementById('score-away').value),
+                    current_minute: parseInt(document.getElementById('score-minute').value)
+                });
+                
+                alert('Score updated!');
+                closeScoreModal();
+                loadGames();
+                loadLiveGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        async function deleteLeague(leagueId) {
+            if (!confirm('Delete this league and all its teams/games?')) return;
+            
+            try {
+                await apiCall(`/admin/leagues/${leagueId}`, 'DELETE');
+                alert('League deleted!');
+                loadLeagues();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteTeam(teamId) {
+            if (!confirm('Delete this team?')) return;
+            
+            try {
+                await apiCall(`/admin/teams/${teamId}`, 'DELETE');
+                alert('Team deleted!');
+                loadTeams();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteGame(gameId) {
+            if (!confirm('Delete this game?')) return;
+            
+            try {
+                await apiCall(`/admin/games/${gameId}`, 'DELETE');
+                alert('Game deleted!');
+                loadGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Initial load
+        loadLiveGames();
+        
+        // Auto-refresh live games every 10 seconds
+        setInterval(loadLiveGames, 10000);
+    </script>
+</body>
+</html>
